@@ -15,9 +15,8 @@ public class Main extends Application {
 
         stage.setTitle("Gestión de biblioteca");
         stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.setMinHeight(600);
-        stage.setMinWidth(900);
+        stage.setMinHeight(700);
+        stage.setMinWidth(400);
 
         stage.show();
     }
