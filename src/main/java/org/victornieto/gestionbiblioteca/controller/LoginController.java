@@ -6,9 +6,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.victornieto.gestionbiblioteca.service.UsuarioService;
 
 import java.io.IOException;
 
@@ -27,13 +29,16 @@ public class LoginController {
     protected void onLoginClick(ActionEvent event) throws IOException {
        textErrorLogin.setText("");
 
+       final UsuarioService userService = new UsuarioService();
+
        String username = textUsername.getText();
        String password = textPassword.getText();
 
-       if(true) {
+       Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+       if(userService.login(username, password)) {
 
            // Cerrar ventana login
-           Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
            stageCurrent.close();
 
            // Abrir ventana principal
@@ -44,6 +49,11 @@ public class LoginController {
            stage.setTitle("Gestión de biblioteca");
            stage.setScene(new Scene(root));
            stage.show();
+
+       } else {
+           Alert alert = generateAlert("error", "Credenciales incorrectas.");
+           alert.initOwner(stageCurrent);
+           alert.showAndWait();
        }
 
     }
@@ -62,5 +72,29 @@ public class LoginController {
         signUpStage.setScene(new Scene(signUpParent));
 
         signUpStage.show();
+    }
+
+    private Alert generateAlert(String type, String message) {
+        /**
+         * Tipos de alerta:
+         *  info
+         *  error
+         */
+
+        if (type.equals("error")) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            return alert;
+
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Información");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            return alert;
+        }
+
     }
 }

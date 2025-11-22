@@ -11,6 +11,7 @@ public class UsuarioModel {
     private String correo;
     private String telefono;
     private Integer activo; // 1 = activo, 0 = no
+    private Integer fk_tipo_usuario;
 
     private UsuarioModel(Builder builder) {
         this.id = builder.id;
@@ -22,6 +23,7 @@ public class UsuarioModel {
         this.correo = builder.correo;
         this.telefono = builder.telefono;
         this.activo = builder.activo;
+        this.fk_tipo_usuario = builder.fk_tipo_usuario;
     }
 
     public static class Builder {
@@ -34,6 +36,7 @@ public class UsuarioModel {
         private String correo;
         private String telefono;
         private Integer activo;
+        private Integer fk_tipo_usuario;
 
         public Builder setId(Long id) {
             this.id = id;
@@ -80,6 +83,11 @@ public class UsuarioModel {
             return this;
         }
 
+        public Builder setFK_TipoUsuario(Integer tipoUsuario) {
+            this.fk_tipo_usuario = tipoUsuario;
+            return this;
+        }
+
         public UsuarioModel build() {
             return new UsuarioModel(this);
         }
@@ -121,6 +129,10 @@ public class UsuarioModel {
         return activo;
     }
 
+    public Integer getFk_tipo_usuario() {
+        return fk_tipo_usuario;
+    }
+
     @Override
     public String toString() {
         return "UsuarioModel{" +
@@ -132,7 +144,8 @@ public class UsuarioModel {
                 ", apellido_m='" + apellido_m + '\'' +
                 ", correo='" + correo + '\'' +
                 ", telefono='" + telefono + '\'' +
-                ", activo=" + activo +
+                ", activo=" + activo + '\'' +
+                ", activo=" + fk_tipo_usuario +
                 '}';
     }
 }

@@ -1,5 +1,7 @@
 package org.victornieto.gestionbiblioteca.utility;
 
+import javax.crypto.spec.PSource;
+
 public class ValidationUsuarioForm implements ValidateForm {
     /**
      * Clase para validar las entradas de TextField.
@@ -45,7 +47,7 @@ public class ValidationUsuarioForm implements ValidateForm {
 
     @Override
     public boolean validateNombre(String nombre) {
-        if (nombre.matches("[a-z]+")) {
+        if (!nombre.matches("^[a-záéíóúñ]+( [a-záéíóúñ]+)*$")) {
             return false;
         }
         if (nombre.length()>LENGTH_NOMBRE || nombre.isEmpty()) {
@@ -56,7 +58,7 @@ public class ValidationUsuarioForm implements ValidateForm {
 
     @Override
     public boolean validateApellidoP(String apellidoP) {
-        if (apellidoP.matches("[a-z]+")) {
+        if (!apellidoP.matches("^[a-záéíóúñ]+( [a-záéíóúñ]+)*$")) {
             return false;
         }
         if (apellidoP.length()>LENGTH_APELLIDOS || apellidoP.isEmpty()) {
@@ -67,7 +69,7 @@ public class ValidationUsuarioForm implements ValidateForm {
 
     @Override
     public boolean validateApellidoM(String apellidoM) {
-        if (apellidoM.matches("[a-z]+")) {
+        if (!apellidoM.matches("^[a-záéíóúñ]+( [a-záéíóúñ]+)*$")) {
             return false;
         }
         if (apellidoM.length()>LENGTH_APELLIDOS || apellidoM.isEmpty()) {
@@ -86,7 +88,10 @@ public class ValidationUsuarioForm implements ValidateForm {
         if (correo.length()>LENGTH_CORREO) {
             return false;
         }
-        if (!correo.matches("[A-Za-z0-9_.-]+")){
+        if (!correo.matches("[A-Za-z0-9_@.-]+")){
+            return false;
+        }
+        if (!correo.matches(".+@.+\\..+")) {
             return false;
         }
         if (count!=1) {

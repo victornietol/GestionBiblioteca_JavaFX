@@ -3,6 +3,7 @@ package org.victornieto.gestionbiblioteca.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.dto.UsuarioFormDTO;
@@ -39,7 +40,7 @@ public class SignUpController {
 
 
     @FXML
-    protected void onSignUpClick() {
+    protected void onSignUpClick(ActionEvent event) {
 
         final UsuarioService userService = new UsuarioService();
 
@@ -47,25 +48,34 @@ public class SignUpController {
                 .setUsername(textUsername.getText())
                 .setPassword1(textPassword1.getText())
                 .setPassword2(textPassword2.getText())
-                .setNombre(textNombre.getText())
-                .setApellidoP(textApellidoP.getText())
-                .setApellidoM(textApellidoM.getText())
+                .setNombre(textNombre.getText().toLowerCase())
+                .setApellidoP(textApellidoP.getText().toLowerCase())
+                .setApellidoM(textApellidoM.getText().toLowerCase())
                 .setCorreo(textCorreo.getText())
                 .setTelefono(textTelefono.getText())
                 .build();
 
         HashMap<String, Object> result = userService.createUsuario(userFormDTO);
-        String message = "";
 
-        // Abrir ventana de creacion exitosa de ser el caso
+        String message = "";
+        Alert alert;
+
+        // Abrir ventana de creacion exitosa o error
         if ((boolean) result.get("created")) {
             message = "Usuario creado: " + ((UsuarioModel) result.get("user")).getUsername();
+            alert = generateAlert("info", message);
         } else {
             message = "Error: " + result.get("error");
+            alert = generateAlert("error", message);
         }
 
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        alert.initOwner(stage);
+        alert.showAndWait();
 
-
+        if ((boolean) result.get("created")) {
+            stage.close();
+        }
     }
 
     @FXML
@@ -73,5 +83,29 @@ public class SignUpController {
         // Cerrar ventana login
         Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stageCurrent.close();
+    }
+
+    private Alert generateAlert(String type, String message) {
+        /**
+         * Tipos de alerta:
+         *  info
+         *  error
+         */
+
+        if (type.equals("error")) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            return alert;
+
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Información");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            return alert;
+        }
+
     }
 }
