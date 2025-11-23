@@ -48,6 +48,7 @@ public class LoginController {
            Stage stage = new Stage();
            stage.setTitle("Gestión de biblioteca");
            stage.setScene(new Scene(root));
+           stage.setMaximized(true);
            stage.show();
 
        } else {

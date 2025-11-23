@@ -42,7 +42,7 @@
                      <Insets bottom="5.0" top="30.0" />
                   </VBox.margin>
                </Label>
-               <PasswordField id="textPassword" fx:id="textPassword" promptText="Ingrese la contraseña" />
+               <PasswordField id="textPassword" fx:id="textPassword" onAction="#onLoginClick" promptText="Ingrese la contraseña" />
                <StackPane prefHeight="42.0" prefWidth="320.0">
                   <VBox.margin>
                      <Insets />
