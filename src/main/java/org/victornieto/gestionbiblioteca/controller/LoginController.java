@@ -1,6 +1,7 @@
 package org.victornieto.gestionbiblioteca.controller;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,9 +9,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.service.UsuarioService;
 
@@ -28,68 +30,89 @@ public class LoginController {
     private ProgressIndicator progressIndicatorLogin;
 
     @FXML
-    protected void onLoginClick(ActionEvent event) throws IOException {
+    private Button buttonLogin;
 
-       progressIndicatorLogin.setVisible(true);
+    @FXML
+    private Button buttonSignup;
 
-       Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+    @FXML
+    protected void onLoginClick(ActionEvent event) {
 
-       final UsuarioService userService = new UsuarioService();
+        progressIndicatorLogin.setVisible(true);
+        progressIndicatorLogin.setProgress(0);
+        buttonLogin.setDisable(true);
+        buttonSignup.setDisable(true);
 
-       String username = textUsername.getText();
-       String password = textPassword.getText();
+        Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-       // Crear hilo de trabajo para actualizacion de elementos de la interfaz
-       new Thread(() -> {
+        final UsuarioService userService = new UsuarioService();
 
-           // Logica del login
+        String username = textUsername.getText();
+        String password = textPassword.getText();
 
-           boolean success = userService.login(
-                   username,
-                   password,
-                   progress -> Platform.runLater(() -> progressIndicatorLogin.setProgress(progress))
-           );
+        // Task para operaciones con mas carga (logica, no UI)
+        Task<Boolean> loginTask = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
 
-           if(success) {
-                Platform.runLater(() -> {
-                    // Cerrar ventana login
-                    stageCurrent.close();
+                // actualizar progreso inicial
+                updateProgress(0.1, 1);
 
-                    try {
-                        // Abrir ventana principal
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/home.fxml"));
-                        Parent root = fxmlLoader.load();
+                return userService.login(
+                        username,
+                        password,
+                        progress -> updateProgress(progress, 1)
+                );
+            }
+        };
 
-                        Stage stage = new Stage();
-                        stage.setTitle("Gestión de biblioteca");
-                        stage.setScene(new Scene(root));
-                        stage.setMinHeight(550);
-                        stage.setMinWidth(800);
-                        stage.setMaximized(true);
-                        stage.show();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        // Login exitoso (tarea completada correctamente)
+        loginTask.setOnSucceeded(e -> {
+            boolean success = loginTask.getValue();
 
-           } else {
-               Platform.runLater(() -> {
-                   progressIndicatorLogin.setVisible(false);
-                   progressIndicatorLogin.setProgress(0);
-                   Alert alert = generateAlert("error", "Credenciales incorrectas.");
-                   alert.initOwner(stageCurrent);
-                   alert.showAndWait();
-               });
-           }
+            // desvincular ProgressIndicator
+            if (progressIndicatorLogin.progressProperty().isBound()) {
+                progressIndicatorLogin.progressProperty().unbind();
+            }
 
-       }).start();
+            if (success) {
+                openHomeWindow(stageCurrent);
 
+            } else { // Las credenciales no son correctas
+                progressIndicatorLogin.setVisible(false);
+                progressIndicatorLogin.setProgress(0);
+                Alert alert = generateAlert("error", "Credenciales incorrectas.");
+                alert.initOwner(stageCurrent);
+                alert.showAndWait();
+                buttonLogin.setDisable(false);
+                buttonSignup.setDisable(false);
+            }
+        });
+
+        // Login fallido por un error (falla al ejecutar la tarea)
+        loginTask.setOnFailed(e -> {
+            // desvincular ProgressIndicator
+            if (progressIndicatorLogin.progressProperty().isBound()) {
+                progressIndicatorLogin.progressProperty().unbind();
+            }
+
+            progressIndicatorLogin.setVisible(false);
+            Alert alert = generateAlert("error", "Error al verificar credenciales");
+            alert.initOwner(stageCurrent);
+            alert.showAndWait();
+        });
+
+        // Vincular ProgressIndicator al task
+        progressIndicatorLogin.progressProperty().bind(loginTask.progressProperty());
+
+        // Iniciar en segundo plano en otro hilo
+        Thread thread = new Thread(loginTask);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @FXML
     protected void onSignUpClick(ActionEvent event) throws IOException {
-        textUsername.setText("");
-        textPassword.setText("");
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/signUp.fxml"));
         Parent signUpParent = fxmlLoader.load();
@@ -98,7 +121,12 @@ public class LoginController {
         signUpStage.setTitle("Registro");
         signUpStage.setScene(new Scene(signUpParent));
 
-        signUpStage.show();
+        signUpStage.initModality(Modality.WINDOW_MODAL);
+
+        Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        signUpStage.initOwner(stageCurrent);
+
+        signUpStage.showAndWait();
     }
 
     private Alert generateAlert(String type, String message) {
@@ -108,20 +136,45 @@ public class LoginController {
          *  error
          */
 
-        if (type.equals("error")) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            return alert;
+        Alert alert;
 
+        if (type.equals("error")) {
+            alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
         } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Información");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            return alert;
         }
 
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        return alert;
     }
+
+    private void openHomeWindow(Stage stageCurrent) {
+        /**
+         * Abre la ventana principal
+         * @param stageCurrent un Stage correspondiente al stage actual
+         */
+        try {
+            // Cerrar ventana login
+            stageCurrent.close();
+
+            // Abrir ventana principal
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/home.fxml"));
+            Parent root = fxmlLoader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Gestión de biblioteca");
+            stage.setScene(new Scene(root));
+            stage.setMinHeight(550);
+            stage.setMinWidth(800);
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (IOException error) {
+            throw new RuntimeException(error);
+        }
+    }
+
 }

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.SignUpController">
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.SignUpController">
    <children>
       <Label text="Nuevo Usuario" textAlignment="CENTER">
          <font>
@@ -103,9 +103,9 @@
       </StackPane>
       <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#onSignUpClick" text="Confirmar" />
+            <Button fx:id="btnConfirm" mnemonicParsing="false" onAction="#onSignUpClick" text="Confirmar" />
             <Pane prefHeight="200.0" prefWidth="50.0" />
-            <Button mnemonicParsing="false" onAction="#onCancelSignUpClick" text="Cancelar" />
+            <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#onCancelSignUpClick" text="Cancelar" />
          </children>
          <VBox.margin>
             <Insets top="20.0" />

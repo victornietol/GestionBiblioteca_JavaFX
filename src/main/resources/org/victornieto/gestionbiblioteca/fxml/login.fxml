@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" maxHeight="800.0" maxWidth="400.0" prefHeight="650.0" prefWidth="400.0" spacing="20.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.LoginController">
+<VBox alignment="CENTER" maxHeight="800.0" maxWidth="400.0" prefHeight="650.0" prefWidth="400.0" spacing="20.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.LoginController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -51,9 +51,9 @@
                </StackPane>
                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                   <children>
-                      <Button id="btnLogin" onAction="#onLoginClick" text="Iniciar Sesión" textAlignment="CENTER" />
+                      <Button id="btnLogin" fx:id="buttonLogin" onAction="#onLoginClick" text="Iniciar Sesión" textAlignment="CENTER" />
                      <Pane prefHeight="200.0" prefWidth="30.0" />
-                     <Button id="btnSignUp" mnemonicParsing="false" onAction="#onSignUpClick" text="Registrarse" />
+                     <Button id="btnSignUp" fx:id="buttonSignup" mnemonicParsing="false" onAction="#onSignUpClick" text="Registrarse" />
                   </children>
                </HBox>
             </children>

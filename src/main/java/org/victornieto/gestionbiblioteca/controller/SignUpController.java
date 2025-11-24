@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.dto.UsuarioFormDTO;
@@ -38,9 +39,17 @@ public class SignUpController {
     @FXML
     private TextField textTelefono;
 
+    @FXML
+    private Button btnConfirm;
+
+    @FXML
+    private Button btnCancel;
+
 
     @FXML
     protected void onSignUpClick(ActionEvent event) {
+        btnConfirm.setDisable(true);
+        btnCancel.setDisable(true);
 
         final UsuarioService userService = new UsuarioService();
 
@@ -72,6 +81,8 @@ public class SignUpController {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         alert.initOwner(stage);
         alert.showAndWait();
+        btnConfirm.setDisable(false);
+        btnCancel.setDisable(false);
 
         if ((boolean) result.get("created")) {
             stage.close();
