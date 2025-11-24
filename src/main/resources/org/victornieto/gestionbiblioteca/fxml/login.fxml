@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -47,11 +48,8 @@
                   <VBox.margin>
                      <Insets />
                   </VBox.margin>
-                  <children>
-                     <Label id="textErrorLogin" fx:id="textErrorLogin" textAlignment="CENTER" textFill="#c60000" />
-                  </children>
                </StackPane>
-               <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+               <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                   <children>
                       <Button id="btnLogin" onAction="#onLoginClick" text="Iniciar Sesión" textAlignment="CENTER" />
                      <Pane prefHeight="200.0" prefWidth="30.0" />
@@ -65,4 +63,5 @@
          </VBox>
       </children>
    </StackPane>
+   <ProgressIndicator fx:id="progressIndicatorLogin" progress="0.0" visible="false" />
 </VBox>

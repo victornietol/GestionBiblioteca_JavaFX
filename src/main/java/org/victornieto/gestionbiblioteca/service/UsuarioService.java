@@ -12,6 +12,7 @@ import org.victornieto.gestionbiblioteca.utility.ValidationUsuarioForm;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class UsuarioService {
 
@@ -80,26 +81,32 @@ public class UsuarioService {
         return result;
     }
 
-    public boolean login(String username, String password) {
+    public boolean login(String username, String password, Consumer<Double> onProgress) {
         /**
          * Funcion para verificar credenciales
          * @param username string correspondiente al usuario
          * @param password string correspondiente a la contraseña
+         * @param onProgress función para manejar el el progreso de ProgressIndicator del controller
          * @return un boolean dependiendo de si las credenciales son válidas
          */
         boolean result = false;
 
+        onProgress.accept(0.20); // manejar el ProgressIndicator de login controller
+
         try {
             String hash = userRepository.getPasswordByUsername(username);
+            onProgress.accept(0.60); // manejar el ProgressIndicator de login controller
 
             if (hash!=null) {
                 result = encrypt.verifyPassword(hash, password);
+                onProgress.accept(0.90); // manejar el ProgressIndicator de login controller
             }
 
         } catch (Exception e) {
             System.out.println("Error: "+ Arrays.toString(e.getStackTrace()));
         }
 
+        onProgress.accept(1.0); // manejar el ProgressIndicator de login controller
         return result;
     }
 

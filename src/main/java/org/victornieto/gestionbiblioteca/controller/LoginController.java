@@ -1,5 +1,6 @@
 package org.victornieto.gestionbiblioteca.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.service.UsuarioService;
@@ -17,53 +19,75 @@ import java.io.IOException;
 public class LoginController {
 
     @FXML
-    private Label textErrorLogin;
-
-    @FXML
     private TextField textUsername;
 
     @FXML
     private TextField textPassword;
 
     @FXML
+    private ProgressIndicator progressIndicatorLogin;
+
+    @FXML
     protected void onLoginClick(ActionEvent event) throws IOException {
-       textErrorLogin.setText("");
+
+       progressIndicatorLogin.setVisible(true);
+
+       Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
        final UsuarioService userService = new UsuarioService();
 
        String username = textUsername.getText();
        String password = textPassword.getText();
 
-       Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+       // Crear hilo de trabajo para actualizacion de elementos de la interfaz
+       new Thread(() -> {
 
-       if(userService.login(username, password)) {
+           // Logica del login
 
-           // Cerrar ventana login
-           stageCurrent.close();
+           boolean success = userService.login(
+                   username,
+                   password,
+                   progress -> Platform.runLater(() -> progressIndicatorLogin.setProgress(progress))
+           );
 
-           // Abrir ventana principal
-           FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/home.fxml"));
-           Parent root = fxmlLoader.load();
+           if(success) {
+                Platform.runLater(() -> {
+                    // Cerrar ventana login
+                    stageCurrent.close();
 
-           Stage stage = new Stage();
-           stage.setTitle("Gestión de biblioteca");
-           stage.setScene(new Scene(root));
-           stage.setMinHeight(550);
-           stage.setMinWidth(800);
-           stage.setMaximized(true);
-           stage.show();
+                    try {
+                        // Abrir ventana principal
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/home.fxml"));
+                        Parent root = fxmlLoader.load();
 
-       } else {
-           Alert alert = generateAlert("error", "Credenciales incorrectas.");
-           alert.initOwner(stageCurrent);
-           alert.showAndWait();
-       }
+                        Stage stage = new Stage();
+                        stage.setTitle("Gestión de biblioteca");
+                        stage.setScene(new Scene(root));
+                        stage.setMinHeight(550);
+                        stage.setMinWidth(800);
+                        stage.setMaximized(true);
+                        stage.show();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+           } else {
+               Platform.runLater(() -> {
+                   progressIndicatorLogin.setVisible(false);
+                   progressIndicatorLogin.setProgress(0);
+                   Alert alert = generateAlert("error", "Credenciales incorrectas.");
+                   alert.initOwner(stageCurrent);
+                   alert.showAndWait();
+               });
+           }
+
+       }).start();
 
     }
 
     @FXML
     protected void onSignUpClick(ActionEvent event) throws IOException {
-        textErrorLogin.setText("");
         textUsername.setText("");
         textPassword.setText("");
 
