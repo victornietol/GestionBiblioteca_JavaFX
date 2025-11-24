@@ -1,5 +1,6 @@
 package org.victornieto.gestionbiblioteca.controller;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -64,29 +65,55 @@ public class SignUpController {
                 .setTelefono(textTelefono.getText())
                 .build();
 
-        HashMap<String, Object> result = userService.createUsuario(userFormDTO);
+        // Task para proceso pesado
+        Task<HashMap<String, Object>> signUpTask = new Task<>() {
+            @Override
+            protected HashMap<String, Object> call() throws Exception {
+                return userService.createUsuario(userFormDTO);
+            }
+        };
 
-        String message = "";
-        Alert alert;
+        // Tarea de SignUp completada correctamente (no significa que se haya registrado usuario correctamente)
+        signUpTask.setOnSucceeded(e -> {
+            HashMap<String, Object> result = signUpTask.getValue();
+            String message;
+            Alert alert;
 
-        // Abrir ventana de creacion exitosa o error
-        if ((boolean) result.get("created")) {
-            message = "Usuario creado: " + ((UsuarioModel) result.get("user")).getUsername();
-            alert = generateAlert("info", message);
-        } else {
-            message = "Error: " + result.get("error");
-            alert = generateAlert("error", message);
-        }
+            // Abrir ventana de creacion exitosa o error
+            if ((boolean) result.get("created")) {
+                message = "Usuario creado: " + ((UsuarioModel) result.get("user")).getUsername();
+                alert = generateAlert("info", message);
+            } else {
+                message = "Error: " + result.get("error");
+                alert = generateAlert("error", message);
+            }
 
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        alert.initOwner(stage);
-        alert.showAndWait();
-        btnConfirm.setDisable(false);
-        btnCancel.setDisable(false);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-        if ((boolean) result.get("created")) {
-            stage.close();
-        }
+            alert.initOwner(stage);
+            alert.showAndWait();
+            btnConfirm.setDisable(false);
+            btnCancel.setDisable(false);
+
+            if ((boolean) result.get("created")) {
+                stage.close();
+            }
+        });
+
+        // Ocurrio algun error en la ejecucion de la tarea SignUp
+        signUpTask.setOnFailed(e -> {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            Alert alert = generateAlert("error", "Ocurrio un error inesperado en la creación del usuario.");
+            alert.initOwner(stage);
+            alert.showAndWait();
+            btnConfirm.setDisable(false);
+            btnCancel.setDisable(false);
+        });
+
+        Thread signUpThread = new Thread(signUpTask);
+        signUpThread.setDaemon(true);
+        signUpThread.start();
     }
 
     @FXML
@@ -103,20 +130,19 @@ public class SignUpController {
          *  error
          */
 
-        if (type.equals("error")) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            return alert;
+        Alert alert;
 
+        if (type.equals("error")) {
+            alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
         } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Información");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            return alert;
         }
+
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        return alert;
 
     }
 }
