@@ -15,4 +15,6 @@ module org.victornieto.gestionbiblioteca {
     exports org.victornieto.gestionbiblioteca;
     exports org.victornieto.gestionbiblioteca.controller;
     opens org.victornieto.gestionbiblioteca.controller to javafx.fxml;
+    opens org.victornieto.gestionbiblioteca.controller.tabs to javafx.fxml;
+    opens org.victornieto.gestionbiblioteca.dto to javafx.base;
 }

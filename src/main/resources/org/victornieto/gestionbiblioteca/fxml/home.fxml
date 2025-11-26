@@ -72,22 +72,22 @@
               <tabs>
                 <Tab text="Inventario">
                   <content>
-                    <fx:include source="tabs/tabInventario.fxml"/>
+                    <fx:include fx:id="tabInventario" source="tabs/tabInventario.fxml"/>
                   </content>
                 </Tab>
                 <Tab text="Prestamos">
                   <content>
-                      <fx:include source="tabs/tabPrestamos.fxml"/>
+                      <fx:include fx:id="tabPrestamos" source="tabs/tabPrestamos.fxml"/>
                   </content>
                 </Tab>
                   <Tab text="Clientes">
                     <content>
-                        <fx:include source="tabs/tabClientes.fxml"/>
+                        <fx:include fx:id="tabClientes" source="tabs/tabClientes.fxml"/>
                     </content>
                   </Tab>
                   <Tab text="Reportes">
                     <content>
-                        <fx:include source="tabs/tabReportes.fxml"/>
+                        <fx:include fx:id="tabReportes" source="tabs/tabReportes.fxml"/>
                     </content>
                   </Tab>
               </tabs>
