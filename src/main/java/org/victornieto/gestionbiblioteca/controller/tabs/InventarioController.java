@@ -27,6 +27,7 @@ public class InventarioController {
     @FXML public MenuButton menuBtnOrdenCampo;
     @FXML public MenuButton menuBtnOrden;
     @FXML public ProgressBar progressBarLoad;
+    @FXML public Label numberRows;
 
     @FXML public TableView<LibroInventarioDTO> tableInventario;
     @FXML public TableColumn<LibroInventarioDTO, Number> columnId;
@@ -88,12 +89,14 @@ public class InventarioController {
                 tableInventario.setItems(data);
             }
 
+            numberRows.setText(String.valueOf(inventarioLibros.size()));
             progressBarLoad.setProgress(1.0);
             btnSearch.setDisable(false);
         });
 
         // La tarea no se ejecuta correctamente debido a un error durante la ejecucion
         getInventarioTask.setOnFailed(e -> {
+            numberRows.setText("0");
             progressBarLoad.setProgress(1.0);
             btnSearch.setDisable(false);
         });
