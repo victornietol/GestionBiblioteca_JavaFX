@@ -132,9 +132,9 @@ public class AutorRepositoryImpl implements AutorRepository {
         return list;
     }
 
-    private Optional<AutorModel> getByNameComplete(String nombre, String apellidoP, String apellidoM) throws SQLException {
+    public Optional<AutorModel> getByNameComplete(String nombre, String apellidoP, String apellidoM) throws SQLException {
         /**
-         * Obtener un usuario, en caso de no encontrarlo se devuelve empty
+         * Obtener un autor, en caso de no encontrarlo se devuelve empty
          */
         String query;
         if (apellidoM == null) {
@@ -177,6 +177,7 @@ public class AutorRepositoryImpl implements AutorRepository {
                         .setId(resultSet.getLong("id"))
                         .setNombre(resultSet.getString("nombre"))
                         .setApellido_p(resultSet.getString("apellido_p"))
+                        .setApellido_m(resultSet.getString("apellido_m"))
                         .setActivo(resultSet.getInt("activo"))
                         .build();
             }

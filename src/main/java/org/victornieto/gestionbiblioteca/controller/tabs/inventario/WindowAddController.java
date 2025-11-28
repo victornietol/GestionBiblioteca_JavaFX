@@ -1,10 +1,20 @@
-package org.victornieto.gestionbiblioteca.controller.tabs;
+package org.victornieto.gestionbiblioteca.controller.tabs.inventario;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import org.victornieto.gestionbiblioteca.dto.CategoriaFormDTO;
+import org.victornieto.gestionbiblioteca.dto.EditorialFormDTO;
+import org.victornieto.gestionbiblioteca.model.CategoriaModel;
+import org.victornieto.gestionbiblioteca.model.EditorialModel;
+import org.victornieto.gestionbiblioteca.repository.CategoriaRepositoryImpl;
+import org.victornieto.gestionbiblioteca.repository.EditorialRepositoryImpl;
 
-public class windowAddController {
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+
+public class WindowAddController {
     @FXML public TextField labelTitulo;
     @FXML public TextField labelEdicion;
     @FXML public TextField LabelAnio;
@@ -18,6 +28,7 @@ public class windowAddController {
 
     @FXML
     public void initialize() {
+
 
     }
 

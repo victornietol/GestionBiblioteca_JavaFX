@@ -120,7 +120,7 @@ public class InventarioController {
     }
 
     public void add(ActionEvent event) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/windowAdd.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/Inventario/WindowAdd.fxml"));
         Parent parent = fxmlLoader.load();
 
         Stage newStage = new Stage();
