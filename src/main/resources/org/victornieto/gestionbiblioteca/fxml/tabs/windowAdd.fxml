@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="800.0" minWidth="-Infinity" prefHeight="731.0" prefWidth="742.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.tabs.windowAddController">
+   <children>
+      <HBox alignment="CENTER" maxHeight="80.0" prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Label text="Nuevo libro">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox alignment="CENTER_LEFT" maxHeight="120.0" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: lightgray; -fx-border-radius: 5;">
+               <children>
+                  <Label text="Titulo:" />
+                  <TextField fx:id="labelTitulo" promptText="Ingresa un titulo" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </VBox>
+            <HBox minHeight="140.0" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: lightgray; -fx-border-radius: 5;">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Autores seleccionados:" />
+                        <ListView fx:id="listAutoresSelected" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label />
+                        <Pane layoutX="10.0" layoutY="127.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Button maxWidth="80.0" mnemonicParsing="false" onAction="#addAutor" text="Agregar" />
+                        <Pane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                        <Button maxWidth="80.0" mnemonicParsing="false" onAction="#removeAutor" text="Eliminar" />
+                        <Pane layoutX="10.0" layoutY="35.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Button layoutX="31.0" layoutY="53.0" maxWidth="80.0" mnemonicParsing="false" onAction="#createAutor" text="Nuevo" />
+                        <Pane layoutX="10.0" layoutY="35.0" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Autores disponibles:" />
+                        <ListView fx:id="listAutoresAvailable" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <HBox layoutX="50.0" layoutY="84.0" minHeight="140.0" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: lightgray; -fx-border-radius: 5;">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Categorias seleccionadas:" />
+                        <ListView fx:id="listCatSelected" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label />
+                        <Pane layoutX="10.0" layoutY="127.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Button maxWidth="80.0" mnemonicParsing="false" onAction="#addCategoria" text="Agregar" />
+                        <Pane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                        <Button maxWidth="80.0" mnemonicParsing="false" onAction="#removeCategoria" text="Eliminar" />
+                        <Pane layoutX="10.0" layoutY="35.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Button layoutX="31.0" layoutY="53.0" maxWidth="80.0" mnemonicParsing="false" onAction="#createCategoria" text="Nueva" />
+                        <Pane layoutX="10.0" layoutY="35.0" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Categorias disponibles:" />
+                        <ListView fx:id="listCatAvailable" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox layoutX="50.0" layoutY="254.0" minHeight="140.0" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: lightgray; -fx-border-radius: 5;">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text=" Editorial seleccionada:" />
+                        <ListView fx:id="listEditSelected" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label />
+                        <Pane layoutX="10.0" layoutY="127.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Button maxWidth="80.0" mnemonicParsing="false" onAction="#selectEditorial" text="Seleccionar" />
+                        <Pane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                        <Button maxWidth="80.0" mnemonicParsing="false" onAction="#removeEditorial" text="Eliminar" />
+                        <Pane layoutX="10.0" layoutY="35.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Button layoutX="31.0" layoutY="53.0" maxWidth="80.0" mnemonicParsing="false" onAction="#createEditorial" text="Nueva" />
+                        <Pane layoutX="10.0" layoutY="35.0" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Editoriales disponibles:" />
+                        <ListView fx:id="listEditAvailable" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </HBox>
+            <VBox alignment="CENTER_LEFT" layoutX="50.0" layoutY="317.0" maxHeight="120.0" prefHeight="200.0" prefWidth="100.0" style="-fx-border-radius: 5; -fx-border-color: lightgray;">
+               <children>
+                  <Label text="Edición" />
+                  <TextField fx:id="labelEdicion" promptText="Ingresa una edición" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" layoutX="50.0" layoutY="386.0" maxHeight="120.0" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: lightgray; -fx-border-radius: 5;">
+               <children>
+                  <Label text="Año" />
+                  <TextField fx:id="LabelAnio" promptText="Ingresa un año" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+         <padding>
+            <Insets left="40.0" right="40.0" />
+         </padding>
+      </VBox>
+      <HBox alignment="CENTER" prefHeight="50.0" prefWidth="742.0">
+         <children>
+            <Button mnemonicParsing="false" text="Guardar" />
+            <Pane maxWidth="100.0" prefHeight="200.0" prefWidth="200.0" />
+            <Button mnemonicParsing="false" text="Cancelar" />
+         </children>
+         <VBox.margin>
+            <Insets bottom="10.0" />
+         </VBox.margin></HBox>
+   </children>
+</VBox>

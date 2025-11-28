@@ -3,13 +3,21 @@ package org.victornieto.gestionbiblioteca.controller.tabs;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
 import org.victornieto.gestionbiblioteca.service.LibroService;
 
+import java.io.IOException;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +36,7 @@ public class InventarioController {
     @FXML public MenuButton menuBtnOrden;
     @FXML public ProgressBar progressBarLoad;
     @FXML public Label numberRows;
+    @FXML public Label labelBuscando;
 
     @FXML public TableView<LibroInventarioDTO> tableInventario;
     @FXML public TableColumn<LibroInventarioDTO, Number> columnId;
@@ -60,7 +69,9 @@ public class InventarioController {
 
     @FXML
     private void showInventario() {
+        labelBuscando.setVisible(true);
         tableInventario.getItems().clear();
+        progressBarLoad.setVisible(true);
         progressBarLoad.setProgress(0.0);
         btnSearch.setDisable(true);
         setValues();
@@ -91,6 +102,8 @@ public class InventarioController {
 
             numberRows.setText(String.valueOf(inventarioLibros.size()));
             progressBarLoad.setProgress(1.0);
+            progressBarLoad.setVisible(false);
+            labelBuscando.setVisible(false);
             btnSearch.setDisable(false);
         });
 
@@ -105,6 +118,24 @@ public class InventarioController {
         thread.setDaemon(true);
         thread.start();
     }
+
+    public void add(ActionEvent event) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/windowAdd.fxml"));
+        Parent parent = fxmlLoader.load();
+
+        Stage newStage = new Stage();
+        newStage.setTitle("Agregar");
+        newStage.setScene(new Scene(parent));
+
+        newStage.initModality(Modality.WINDOW_MODAL);
+
+        Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        newStage.initOwner(stageCurrent);
+
+        newStage.showAndWait();
+    }
+
+
 
     private void setColumns() {
         columnId.setCellValueFactory(new PropertyValueFactory<>("id_libro"));
