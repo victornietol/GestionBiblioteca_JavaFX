@@ -16,7 +16,7 @@ public class CategoriaRepositoryImpl implements CategoriaRepository{
     public List<CategoriaModel> getAll() throws SQLException {
         List<CategoriaModel> list = new ArrayList<>();
 
-        String query = "SELECT * FROM categoria WHERE activo = 1";
+        String query = "SELECT * FROM categoria WHERE activo = 1 ORDER BY nombre ASC";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -37,7 +37,7 @@ public class CategoriaRepositoryImpl implements CategoriaRepository{
         /**
          * Obtener una categoria, en caso de no encontrarlo se devuelve empty
          */
-        String query = "SELECT * FROM categoria WHERE id = ? AND activo = 1";
+        String query = "SELECT * FROM categoria WHERE id = ? AND activo = 1 ORDER BY nombre ASC";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -69,13 +69,17 @@ public class CategoriaRepositoryImpl implements CategoriaRepository{
 
             int result = stmt.executeUpdate();
 
-            if (result!=0) {
+            if (result != 0) {
                 return getByNombre(categoria.nombre());
             }
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en CategoriaRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: categoria ya existente.");
+
         } catch (SQLException e) {
-            System.out.println("Error al preparar la consulta en AutorRepositoryImpl");
-            throw e;
+            System.out.println("Error al preparar la consulta en CategoriaRepositoryImpl");
+            throw new SQLException("Error al crear nueva categoria.");
         }
 
         return Optional.empty();
@@ -129,7 +133,7 @@ public class CategoriaRepositoryImpl implements CategoriaRepository{
         /**
          * Obtener una cateogria, en caso de no encontrarlo se devuelve empty
          */
-        String query = "SELECT * FROM categoria WHERE nombre = ? AND activo = 1";
+        String query = "SELECT * FROM categoria WHERE nombre = ? AND activo = 1 ORDER BY nombre ASC";
 
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();

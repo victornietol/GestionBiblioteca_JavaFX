@@ -15,7 +15,7 @@ public class AutorRepositoryImpl implements AutorRepository {
     public List<AutorModel> getAll() throws SQLException {
         List<AutorModel> list = new ArrayList<>();
 
-        String query = "SELECT * FROM autor WHERE activo = 1";
+        String query = "SELECT * FROM autor WHERE activo = 1 ORDER BY nombre ASC";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -36,7 +36,7 @@ public class AutorRepositoryImpl implements AutorRepository {
         /**
          * Obtener un usuario, en caso de no encontrarlo se devuelve empty
          */
-        String query = "SELECT * FROM autor WHERE id = ? AND activo = 1";
+        String query = "SELECT * FROM autor WHERE id = ? AND activo = 1 ORDER BY nombre ASC";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -77,10 +77,13 @@ public class AutorRepositoryImpl implements AutorRepository {
             if (result!=0) {
                 return getByNameComplete(autor.nombre(), autor.apellidoP(), autor.apellidoM());
             }
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en AutorRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: autor ya existente.");
 
         } catch (SQLException e) {
             System.out.println("Error al preparar la consulta en AutorRepositoryImpl");
-            throw e;
+            throw new SQLException("Error al crear nuevo Autor.");
         }
 
         return Optional.empty();
@@ -116,11 +119,13 @@ public class AutorRepositoryImpl implements AutorRepository {
          */
         try {
             while(result.next()) {
+                Object apellidoMObj = result.getObject("apellido_m");
+                String apellidoM = (apellidoMObj==null) ? "" : apellidoMObj.toString();
                 list.add(new AutorModel.Builder()
                         .setId(result.getLong("id"))
                         .setNombre(result.getString("nombre"))
                         .setApellido_p(result.getString("apellido_p"))
-                        .setApellido_m(result.getString("apellido_m"))
+                        .setApellido_m(apellidoM)
                         .setActivo(result.getInt("activo"))
                         .build()
                 );
@@ -136,28 +141,25 @@ public class AutorRepositoryImpl implements AutorRepository {
         /**
          * Obtener un autor, en caso de no encontrarlo se devuelve empty
          */
-        String query;
+        String query, nombreCompleto;
         if (apellidoM == null) {
             query = "SELECT * " +
                     "FROM autor " +
-                    "WHERE nombre = ? AND apellido_p = ? AND apellido_m IS NULL AND activo = 1";
+                    "WHERE concat(nombre, ' ', apellido_p) = ? AND apellido_m IS NULL AND activo = 1 " +
+                    "ORDER BY nombre ASC";
+            nombreCompleto = nombre + " " + apellidoP;
         } else {
             query = "SELECT * " +
                     "FROM autor " +
-                    "WHERE nombre = ? AND apellido_p = ? AND apellido_m = ? AND activo = 1";
+                    "WHERE concat(nombre, ' ', apellido_p, ' ', apellido_m) = ? AND activo = 1 " +
+                    "ORDER BY nombre ASC";
+            nombreCompleto = nombre + " " + apellidoP + " " + apellidoM;
         }
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            if (apellidoM == null) {
-                stmt.setString(1, nombre);
-                stmt.setString(2, apellidoP);
-            } else {
-                stmt.setString(1, nombre);
-                stmt.setString(2, apellidoP);
-                stmt.setString(3, apellidoM);
-            }
+            stmt.setString(1, nombreCompleto);
 
             try (ResultSet resultSet = stmt.executeQuery()) {
                 AutorModel autor = transformToModel(resultSet);
@@ -173,11 +175,13 @@ public class AutorRepositoryImpl implements AutorRepository {
     private AutorModel transformToModel(ResultSet resultSet) {
         try {
             if (resultSet.next()) {
+                Object apellidoMObj = resultSet.getObject("apellido_m");
+                String apellidoM = (apellidoMObj==null) ? "" : apellidoMObj.toString();
                 return new AutorModel.Builder()
                         .setId(resultSet.getLong("id"))
                         .setNombre(resultSet.getString("nombre"))
                         .setApellido_p(resultSet.getString("apellido_p"))
-                        .setApellido_m(resultSet.getString("apellido_m"))
+                        .setApellido_m(apellidoM)
                         .setActivo(resultSet.getInt("activo"))
                         .build();
             }

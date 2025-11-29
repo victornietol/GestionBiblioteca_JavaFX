@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class AutorService {
 
-    private final AutorRepository autorRepository;
+    private final AutorRepositoryImpl autorRepository;
     private final Integer MAX_LENGTH_NOMBRE = 50;
     private final Integer MAX_LENGTH_APELLIDOS = 50;
 
@@ -42,23 +42,34 @@ public class AutorService {
         return Optional.empty();
     }
 
-    public Optional<AutorModel> create(AutorFormDTO autor) throws IllegalArgumentException {
-        String apellidoM = null;
+    public Optional<AutorModel> getModelByNombreCompleto(String nombre, String apellidoP, String apellidoM) {
+        try {
+            return autorRepository.getByNameComplete(nombre, apellidoP, apellidoM);
+        } catch (SQLException e) {
+            System.out.println("Error al cargar autor por nombre completo en WindowAddController: " + Arrays.toString(e.getStackTrace()));;
+        }
+        return Optional.empty();
+    }
 
-        if (autor.nombre()==null || autor.nombre().length()>MAX_LENGTH_NOMBRE) {
+    public Optional<AutorModel> create(AutorFormDTO autor) throws IllegalArgumentException {
+        String apellidoM;
+        if (autor.apellidoM().isEmpty()) {
+            apellidoM = null;
+        } else {
+            apellidoM = autor.apellidoM().toLowerCase();
+        }
+
+
+        if (autor.nombre()==null || autor.nombre().length()>MAX_LENGTH_NOMBRE || autor.nombre().isEmpty()) {
             throw new IllegalArgumentException("Campo nombre no valido");
         }
 
-        if (autor.apellidoP()==null || autor.apellidoP().length()>MAX_LENGTH_APELLIDOS) {
+        if (autor.apellidoP()==null || autor.apellidoP().length()>MAX_LENGTH_APELLIDOS || autor.apellidoP().isEmpty()) {
             throw new IllegalArgumentException("Campo apellido paterno no valido");
         }
 
-        if (autor.apellidoM()!=null) {
-            apellidoM = autor.apellidoM().toLowerCase();
-
-            if (apellidoM.length()>MAX_LENGTH_APELLIDOS) {
-                throw new IllegalArgumentException("Campo apellido materno no valido");
-            }
+        if (apellidoM!=null && apellidoM.length()>MAX_LENGTH_APELLIDOS) {
+            throw new IllegalArgumentException("Campo apellido materno no valido");
         }
 
         AutorFormDTO newAutor = new AutorFormDTO(
@@ -71,9 +82,8 @@ public class AutorService {
             return autorRepository.save(newAutor);
         } catch (SQLException e) {
             System.out.println("Error al crear autor por id en WindowAddController: " + Arrays.toString(e.getStackTrace()));;
+            throw new RuntimeException(e.getMessage());
         }
-
-        return Optional.empty();
     }
 
     public Boolean delete(Long id) {

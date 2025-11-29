@@ -54,10 +54,6 @@ public class CategoriaModel {
 
     @Override
     public String toString() {
-        return "CategoriaModel{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", activo=" + activo +
-                '}';
+        return nombre.substring(0,1).toUpperCase() + nombre.substring(1);
     }
 }

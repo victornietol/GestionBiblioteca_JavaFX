@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="200.0" maxWidth="390.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="390.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.tabs.inventario.NewCategoriaFormController">
+   <children>
+      <VBox alignment="CENTER" maxHeight="80.0" prefHeight="80.0" prefWidth="100.0">
+         <children>
+            <Label text="Nueva Categoria">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" prefHeight="120.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <padding>
+            <Insets left="40.0" right="40.0" />
+         </padding>
+         <children>
+            <Label text="Nombre de la categoria:">
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </Label>
+            <TextField fx:id="textFieldCategoria" onAction="#onSave">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </TextField>
+         </children>
+      </VBox>
+      <HBox alignment="CENTER" maxHeight="80.0" prefHeight="80.0" prefWidth="200.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#onSave" text="Guardar" />
+            <Pane maxWidth="40.0" prefHeight="200.0" prefWidth="200.0" />
+            <Button layoutX="321.0" layoutY="48.0" mnemonicParsing="false" onAction="#onCancel" text="Cancelar" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

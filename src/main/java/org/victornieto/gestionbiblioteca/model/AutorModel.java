@@ -73,6 +73,12 @@ public class AutorModel {
         return activo;
     }
 
+    public String getNombreCompleto() {
+        return (nombre.substring(0,1).toUpperCase() + nombre.substring(1)) + " " +
+                (apellido_p.substring(0,1).toUpperCase() + apellido_p.substring(1)) + " " +
+                (apellido_m.substring(0,1).toUpperCase() + apellido_m.substring(1));
+    }
+
     @Override
     public String toString() {
         return "AutorModel{" +

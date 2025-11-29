@@ -40,7 +40,7 @@
                   <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text="Autores seleccionados:" />
-                        <ListView fx:id="listAutoresSelected" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="listViewAutoresSelected" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
@@ -58,7 +58,7 @@
                   <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text="Autores disponibles:" />
-                        <ListView fx:id="listAutoresAvailable" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="listViewAutoresAvailable" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                   </VBox>
                </children>
@@ -74,7 +74,7 @@
                   <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text="Categorias seleccionadas:" />
-                        <ListView fx:id="listCatSelected" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="listViewCatSelected" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
@@ -92,7 +92,7 @@
                   <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text="Categorias disponibles:" />
-                        <ListView fx:id="listCatAvailable" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="listViewCatAvailable" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                   </VBox>
                </children>
@@ -108,7 +108,7 @@
                   <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text=" Editorial seleccionada:" />
-                        <ListView fx:id="listEditSelected" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="listViewEditSelected" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
@@ -126,7 +126,7 @@
                   <VBox layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text="Editoriales disponibles:" />
-                        <ListView fx:id="listEditAvailable" prefHeight="200.0" prefWidth="200.0" />
+                        <ListView fx:id="listViewEditAvailable" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                   </VBox>
                </children>

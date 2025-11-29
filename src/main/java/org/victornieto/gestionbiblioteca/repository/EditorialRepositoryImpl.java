@@ -5,10 +5,7 @@ import org.victornieto.gestionbiblioteca.dto.EditorialFormDTO;
 import org.victornieto.gestionbiblioteca.model.CategoriaModel;
 import org.victornieto.gestionbiblioteca.model.EditorialModel;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +16,7 @@ public class EditorialRepositoryImpl implements EditorialRepository{
     public List<EditorialModel> getAll() throws SQLException {
         List<EditorialModel> list = new ArrayList<>();
 
-        String query = "SELECT * FROM editorial WHERE activo = 1";
+        String query = "SELECT * FROM editorial WHERE activo = 1 ORDER BY nombre ASC";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -40,7 +37,7 @@ public class EditorialRepositoryImpl implements EditorialRepository{
         /**
          * Obtener una editorial, en caso de no encontrarlo se devuelve empty
          */
-        String query = "SELECT * FROM editorial WHERE id = ? AND activo = 1";
+        String query = "SELECT * FROM editorial WHERE id = ? AND activo = 1 ORDER BY nombre ASC";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -76,9 +73,13 @@ public class EditorialRepositoryImpl implements EditorialRepository{
                 return getByNombre(editorial.nombre());
             }
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en EditorialRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: editorial ya existente.");
+
         } catch (SQLException e) {
             System.out.println("Error al preparar la consulta en EditorialRepositoryImpl");
-            throw e;
+            throw new SQLException("Error al crear nueva editorial.");
         }
 
         return Optional.empty();
@@ -132,7 +133,7 @@ public class EditorialRepositoryImpl implements EditorialRepository{
         /**
          * Obtener una editorial, en caso de no encontrarlo se devuelve empty
          */
-        String query = "SELECT * FROM editorial WHERE nombre = ? AND activo = 1";
+        String query = "SELECT * FROM editorial WHERE nombre = ? AND activo = 1 ORDER BY nombre ASC";
 
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();

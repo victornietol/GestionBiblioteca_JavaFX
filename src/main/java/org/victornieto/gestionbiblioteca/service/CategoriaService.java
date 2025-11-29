@@ -37,7 +37,7 @@ public class CategoriaService {
             return categoriaRepository.getById(id);
         } catch (SQLException e) {
             System.out.println("Error al buscar categoria por id en CategoriaService: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -50,7 +50,7 @@ public class CategoriaService {
             return categoriaRepository.save(categoria);
         } catch (SQLException e) {
             System.out.println("Error al crear categoria en CategoriaService: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -59,7 +59,7 @@ public class CategoriaService {
             return categoriaRepository.delete(id);
         } catch (SQLException e) {
             System.out.println("Error al eliminar categoria en CategoriaService: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 

@@ -36,7 +36,7 @@ public class EditorialService {
             return editorialRepository.getById(id);
         } catch (SQLException e) {
             System.out.println("Error al buscar editorial por id en CategoriaService: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -49,7 +49,7 @@ public class EditorialService {
             return editorialRepository.save(editorial);
         } catch (SQLException e) {
             System.out.println("Error al crear editorial en CategoriaService: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -58,7 +58,7 @@ public class EditorialService {
             return editorialRepository.delete(id);
         } catch (SQLException e) {
             System.out.println("Error al eliminar editorial en CategoriaService: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
