@@ -69,7 +69,6 @@ public class InventarioController {
         generateFunctionsMenuButton();
         setColumns();
         showInventario();
-        createContextMenu();
 
     }
 
@@ -104,6 +103,7 @@ public class InventarioController {
                 progressBarLoad.setProgress(0.70);
                 ObservableList<LibroInventarioDTO> data = FXCollections.observableArrayList(inventarioLibros);
                 tableInventario.setItems(data);
+                createContextMenu();
             }
 
             numberRows.setText(String.valueOf(inventarioLibros.size()));
@@ -139,15 +139,28 @@ public class InventarioController {
         newStage.initOwner(stageCurrent);
 
         newStage.showAndWait();
+        showInventario();
     }
 
     private void createContextMenu() {
         /**
          * Creación de ContextMenu para opciones de agregar y eliminar
          */
-        MenuItem itemAddUnit = new MenuItem("Agregar ejemplar");
-        MenuItem itemDelete = new MenuItem("Eliminar selección");
 
+        if (radioBtnTitulos.isSelected()) {
+            createContextMenuTitulos();
+        } else {
+            createContextMenuUnidades();
+        }
+
+
+    }
+
+    private void createContextMenuTitulos() {
+        MenuItem itemAddUnit = new MenuItem("Agregar ejemplar");
+        MenuItem itemDelete = new MenuItem("Eliminar título seleccionado");
+
+        contextMenu.getItems().clear();
         contextMenu.getItems().addAll(itemAddUnit, itemDelete);
 
         itemAddUnit.setOnAction(e -> {
@@ -163,6 +176,14 @@ public class InventarioController {
 
         // asignar ContextMenu a cada fila
         setContextMenuPerRow();
+    }
+
+    private void createContextMenuUnidades() {
+        MenuItem itemAddUnit = new MenuItem("Agregar ejemplar 2");
+        MenuItem itemDelete = new MenuItem("Eliminar selección");
+
+        contextMenu.getItems().clear();
+        contextMenu.getItems().addAll(itemAddUnit, itemDelete);
     }
 
     private void openWindowAddUnits(ActionEvent event) throws IOException {
@@ -188,10 +209,25 @@ public class InventarioController {
         newStage.setResizable(false);
 
         newStage.showAndWait();
+        showInventario();
     }
 
     private void openWindowDelete(ActionEvent event) {
-        System.out.println("Eliminar selccion presionado");
+        LibroInventarioDTO selected = tableInventario.getSelectionModel().getSelectedItem();
+        AlertWindow alertWindow = new AlertWindow();
+
+        try {
+            boolean confirm = alertWindow.generateConfirmation("Confirmar", "¿Estás seguro que quieres eliminar '" + selected.getTitulo() + "'?", "Se eliminarán los ejemplares.");
+            if (confirm) {
+                confirm = libroService.deleteById(Long.valueOf(selected.getId_libro()));
+                if (confirm) {
+                    alertWindow.generateInformation("Información", "Eliminación completada.", null);
+                    showInventario(); // recargar inventario
+                }
+            }
+        } catch (Exception e) {
+            alertWindow.generateError("Error", "Operación incompleta, ocurrió un error.", null);
+        }
     }
 
     private void setContextMenuPerRow() {

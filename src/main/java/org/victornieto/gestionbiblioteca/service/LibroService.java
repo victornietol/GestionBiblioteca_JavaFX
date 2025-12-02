@@ -160,6 +160,14 @@ public class LibroService {
         }
     }
 
+    public Boolean deleteById(Long id) {
+        try {
+            return libroRepository.delete(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     private Optional<LibroModel> create(LibroDTO libro) throws IllegalArgumentException {
         /**
          * Guarda y crea la information de la entidad libro solamente
