@@ -11,11 +11,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.victornieto.gestionbiblioteca.controller.tabs.inventario.AddUnitsController;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
 import org.victornieto.gestionbiblioteca.service.LibroService;
+import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
 import java.io.IOException;
 import java.time.Year;
@@ -49,6 +52,8 @@ public class InventarioController {
     @FXML public TableColumn<LibroInventarioDTO, Number> columnPag;
     @FXML public TableColumn<LibroInventarioDTO, Number> columnUnidades;
 
+    private ContextMenu contextMenu = new ContextMenu();
+
     private LibroService libroService;
     private List<LibroInventarioDTO> inventarioLibros;
     private Boolean showTitles;
@@ -64,6 +69,7 @@ public class InventarioController {
         generateFunctionsMenuButton();
         setColumns();
         showInventario();
+        createContextMenu();
 
     }
 
@@ -135,7 +141,80 @@ public class InventarioController {
         newStage.showAndWait();
     }
 
+    private void createContextMenu() {
+        /**
+         * Creación de ContextMenu para opciones de agregar y eliminar
+         */
+        MenuItem itemAddUnit = new MenuItem("Agregar ejemplar");
+        MenuItem itemDelete = new MenuItem("Eliminar selección");
 
+        contextMenu.getItems().addAll(itemAddUnit, itemDelete);
+
+        itemAddUnit.setOnAction(e -> {
+            try {
+                openWindowAddUnits(e);
+            } catch (IOException ex) {
+                AlertWindow window = new AlertWindow();
+                window.generateError("Error", "Se generó un problema al abrir la ventana.", null);
+            }
+        });
+
+        itemDelete.setOnAction(e -> openWindowDelete(e));
+
+        // asignar ContextMenu a cada fila
+        setContextMenuPerRow();
+    }
+
+    private void openWindowAddUnits(ActionEvent event) throws IOException {
+        LibroInventarioDTO selected = tableInventario.getSelectionModel().getSelectedItem();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/inventario/addUnits.fxml"));
+        Parent parent = fxmlLoader.load();
+
+        AddUnitsController addUnitsController = fxmlLoader.getController();
+        addUnitsController.setTitle(selected.getTitulo());
+        addUnitsController.setId_libro(Long.valueOf(selected.getId_libro()));
+
+        Stage newStage = new Stage();
+        newStage.setTitle("Agregar");
+        newStage.setScene(new Scene(parent));
+
+        newStage.initModality(Modality.WINDOW_MODAL);
+
+        Stage stageCurrent = (Stage) tableInventario.getScene().getWindow();
+        newStage.initOwner(stageCurrent);
+        newStage.setWidth(400);
+        newStage.setHeight(260);
+        newStage.setResizable(false);
+
+        newStage.showAndWait();
+    }
+
+    private void openWindowDelete(ActionEvent event) {
+        System.out.println("Eliminar selccion presionado");
+    }
+
+    private void setContextMenuPerRow() {
+        tableInventario.setRowFactory(tv -> {
+            TableRow<LibroInventarioDTO> row = new TableRow<>();
+
+            row.setOnContextMenuRequested(event -> {
+                if (!row.isEmpty()) {
+                    tableInventario.getSelectionModel().select(row.getIndex());
+                    contextMenu.show(row, event.getSceneX(), event.getScreenY());
+                }
+            });
+
+            // Evitar mostrar menú en filas vacias
+            row.setOnMouseClicked(event -> {
+                if (event.getButton().equals(MouseButton.SECONDARY) && row.isEmpty()) {
+                    contextMenu.hide();
+                }
+            });
+
+            return row;
+        });
+    }
 
     private void setColumns() {
         columnId.setCellValueFactory(new PropertyValueFactory<>("id_libro"));

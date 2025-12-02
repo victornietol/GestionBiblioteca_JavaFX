@@ -147,6 +147,19 @@ public class LibroService {
         }
     }
 
+    public Boolean addUnits(Long id_libro, Integer units) {
+        try {
+            boolean inserted = libroRepository.addUnits(id_libro, units);
+            if (inserted) {
+                return true;
+            } else {
+                throw new RuntimeException("Error al agregar nuevo ejemplar");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     private Optional<LibroModel> create(LibroDTO libro) throws IllegalArgumentException {
         /**
          * Guarda y crea la information de la entidad libro solamente

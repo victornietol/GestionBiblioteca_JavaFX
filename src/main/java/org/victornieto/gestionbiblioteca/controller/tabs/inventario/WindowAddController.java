@@ -101,8 +101,8 @@ public class WindowAddController {
                     newLibro = newLibroOp.get();
                     alertWindow.generateInformation(
                             "Información",
-                            "Operación exitosa, se agrergaron",
-                            "Titulo = " + newLibro.getTitulo().substring(0,1).toUpperCase() + newLibro.getTitulo().substring(1) + "\nUnidades = " + units);
+                            "Operación exitosa, se agrergaron:",
+                            "Titulo del libro: " + newLibro.getTitulo().substring(0,1).toUpperCase() + newLibro.getTitulo().substring(1) + "\nUnidades: " + units);
                     closeWindow(event);
                 }
             } catch (RuntimeException e) {
