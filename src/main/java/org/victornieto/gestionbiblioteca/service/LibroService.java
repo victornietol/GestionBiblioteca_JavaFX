@@ -369,7 +369,7 @@ public class LibroService {
 
     private void loadValuesColumns() {
         columnsValueConverts.put("ID", "id_libro");
-        columnsValueConverts.put("Titulo", "titulo");
+        columnsValueConverts.put("Título", "titulo");
         columnsValueConverts.put("Autor", "autor");
         columnsValueConverts.put("Categoria", "categoria");
         columnsValueConverts.put("Editorial", "editorial");

@@ -45,20 +45,11 @@
                      <children>
                         <ButtonBar buttonMinWidth="10.0" prefHeight="40.0" prefWidth="200.0">
                           <buttons>
-                              <Button mnemonicParsing="false" onAction="#add">
+                              <Button mnemonicParsing="false" onAction="#add" text="Agregar libro">
                                  <graphic>
                                     <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
                                           <Image url="@../../img/add_icon.png" />
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </Button>
-                            <Button mnemonicParsing="false">
-                                 <graphic>
-                                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../../img/delete_icon.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -77,7 +68,7 @@
                      <items>
                         <MenuItem mnemonicParsing="false" text="Todos" />
                         <MenuItem mnemonicParsing="false" text="ID" />
-                        <MenuItem mnemonicParsing="false" text="Titulo" />
+                        <MenuItem mnemonicParsing="false" text="Título" />
                         <MenuItem mnemonicParsing="false" text="Autor" />
                         <MenuItem mnemonicParsing="false" text="Categoria" />
                         <MenuItem mnemonicParsing="false" text="Editorial" />
@@ -114,7 +105,7 @@
                   <MenuButton fx:id="menuBtnOrdenCampo" maxWidth="80.0" mnemonicParsing="false" text="ID" HBox.hgrow="ALWAYS">
                     <items>
                       <MenuItem mnemonicParsing="false" text="ID" />
-                      <MenuItem mnemonicParsing="false" text="Titulo" />
+                      <MenuItem mnemonicParsing="false" text="Título" />
                         <MenuItem mnemonicParsing="false" text="Autor" />
                         <MenuItem mnemonicParsing="false" text="Categoria" />
                         <MenuItem mnemonicParsing="false" text="Editorial" />

@@ -158,11 +158,14 @@ public class InventarioController {
     }
 
     private void createContextMenuTitulos() {
+        MenuItem itemListUnits = new MenuItem("Ver ejemplares");
         MenuItem itemAddUnit = new MenuItem("Agregar ejemplar");
         MenuItem itemDelete = new MenuItem("Eliminar título seleccionado");
 
         contextMenu.getItems().clear();
-        contextMenu.getItems().addAll(itemAddUnit, itemDelete);
+        contextMenu.getItems().addAll(itemListUnits, itemAddUnit, itemDelete);
+
+        itemListUnits.setOnAction(e -> showUnitsFromSelected());
 
         itemAddUnit.setOnAction(e -> {
             try {
@@ -188,6 +191,18 @@ public class InventarioController {
         itemDelete.setOnAction(e -> openWindowDeleteUnits());
 
         setContextMenuPerRow();
+    }
+
+    private void showUnitsFromSelected() {
+        LibroInventarioDTO selected = tableInventario.getSelectionModel().getSelectedItem();
+
+        // Ajustar valores para mostrar unidades del título seleccionado
+        radioBtnTitulos.setSelected(false);
+        radioBtnUnidades.setSelected(true);
+        menuBtnCriterio.setText("Título");
+        textFieldSearch.setText(selected.getTitulo());
+
+        showInventario();
     }
 
     private void openWindowAddUnits(ActionEvent event) throws IOException {
