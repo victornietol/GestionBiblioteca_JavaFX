@@ -27,7 +27,7 @@ public class AutorService {
         try {
             list = autorRepository.getAll();
         } catch (SQLException e) {
-            System.out.println("Error al cargar autores en WindowAddController: " + Arrays.toString(e.getStackTrace()));;
+            System.out.println("Error al cargar autores en AutorService: " + Arrays.toString(e.getStackTrace()));;
         }
 
         return list;
@@ -37,16 +37,25 @@ public class AutorService {
         try {
           return autorRepository.getById(id);
         } catch (SQLException e) {
-            System.out.println("Error al cargar autor por id en WindowAddController: " + Arrays.toString(e.getStackTrace()));;
+            System.out.println("Error al cargar autor por id en AutorService: " + Arrays.toString(e.getStackTrace()));;
         }
         return Optional.empty();
     }
 
-    public Optional<AutorModel> getModelByNombreCompleto(String nombre, String apellidoP, String apellidoM) {
+    public Optional<AutorModel> getModelByNombreAndApellidos(String nombre, String apellidoP, String apellidoM) {
         try {
             return autorRepository.getByNameComplete(nombre, apellidoP, apellidoM);
         } catch (SQLException e) {
-            System.out.println("Error al cargar autor por nombre completo en WindowAddController: " + Arrays.toString(e.getStackTrace()));;
+            System.out.println("Error al cargar autor por nombre completo en AutorService: " + Arrays.toString(e.getStackTrace()));;
+        }
+        return Optional.empty();
+    }
+
+    public Optional<AutorModel> getModelByNombreCompleto(String nombreCompleto) {
+        try {
+            return autorRepository.getByNameComplete(nombreCompleto);
+        } catch (SQLException e) {
+            System.out.println("Error al cargar autor por nombre completo en AutorService: " + Arrays.toString(e.getStackTrace()));;
         }
         return Optional.empty();
     }

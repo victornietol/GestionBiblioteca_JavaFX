@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface CategoriaRepository {
     List<CategoriaModel> getAll() throws SQLException;
     Optional<CategoriaModel> getById(Integer id) throws SQLException;
+    Optional<CategoriaModel> getByNombre(String nombre) throws SQLException;
     Optional<CategoriaModel> save(CategoriaFormDTO categoria) throws SQLException;
     Boolean delete(Long id) throws SQLException;
 }

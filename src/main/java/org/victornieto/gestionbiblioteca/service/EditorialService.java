@@ -40,6 +40,15 @@ public class EditorialService {
         }
     }
 
+    public Optional<EditorialModel> getByNombre(String nombre) {
+        try {
+            return editorialRepository.getByNombre(nombre);
+        } catch (SQLException e) {
+            System.out.println("Error al buscar editorial por id en CategoriaService: " + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Optional<EditorialModel> create(EditorialFormDTO editorial) throws IllegalArgumentException{
         if (editorial.nombre().length()>MAX_LENGTH_NOMBRE || editorial.nombre().isEmpty()) {
             throw new IllegalArgumentException("Nombre de editorial invalido");

@@ -75,56 +75,28 @@ public class LibroModel {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getTitulo() {
         return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
     }
 
     public Year getAnio_publicacion() {
         return anio_publicacion;
     }
 
-    public void setAnio_publicacion(Year anio_publicacion) {
-        this.anio_publicacion = anio_publicacion;
-    }
-
     public Integer getNo_paginas() {
         return no_paginas;
-    }
-
-    public void setNo_paginas(Integer no_paginas) {
-        this.no_paginas = no_paginas;
     }
 
     public String getEdicion() {
         return edicion;
     }
 
-    public void setEdicion(String edicion) {
-        this.edicion = edicion;
-    }
-
     public Long getId_editorial() {
         return id_editorial;
     }
 
-    public void setId_editorial(Long id_editorial) {
-        this.id_editorial = id_editorial;
-    }
-
     public Integer getActivo() {
         return activo;
-    }
-
-    public void setActivo(Integer activo) {
-        this.activo = activo;
     }
 
     @Override

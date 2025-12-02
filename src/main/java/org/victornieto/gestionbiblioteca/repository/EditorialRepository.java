@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface EditorialRepository {
     List<EditorialModel> getAll() throws SQLException;
     Optional<EditorialModel> getById(Integer id) throws SQLException;
+    Optional<EditorialModel> getByNombre(String nombre) throws SQLException;
     Optional<EditorialModel> save(EditorialFormDTO editorial) throws SQLException;
     Boolean delete(Long id) throws SQLException;
 }

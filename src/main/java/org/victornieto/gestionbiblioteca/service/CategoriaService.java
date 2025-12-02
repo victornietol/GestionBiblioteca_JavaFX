@@ -41,6 +41,15 @@ public class CategoriaService {
         }
     }
 
+    public Optional<CategoriaModel> getByNombre(String categoria) {
+        try {
+            return categoriaRepository.getByNombre(categoria);
+        } catch (SQLException e) {
+            System.out.println("Error al buscar categoria por nombre en CategoriaService: " + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Optional<CategoriaModel> create(CategoriaFormDTO categoria) throws IllegalArgumentException{
         if (categoria.nombre().length()>MAX_LENGTH_NOMBRE || categoria.nombre().isEmpty()) {
             throw new IllegalArgumentException("Nombre de categoria invalido");

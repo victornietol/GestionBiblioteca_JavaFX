@@ -1,18 +1,14 @@
 package org.victornieto.gestionbiblioteca.repository;
 
 import org.victornieto.gestionbiblioteca.database.ConnectionDBImpl_MySQL;
+import org.victornieto.gestionbiblioteca.dto.LibroDTO;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
+import org.victornieto.gestionbiblioteca.model.CategoriaModel;
 import org.victornieto.gestionbiblioteca.model.LibroModel;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class LibroRepositoryImp implements LibroRepository {
 
@@ -79,13 +75,224 @@ public class LibroRepositoryImp implements LibroRepository {
     }
 
     @Override
-    public LibroModel save(LibroModel book) {
-        return null;
+    public Optional<LibroModel> getByTituloAnioPaginasEdicion(String titulo, Integer anio, Integer paginas, String edicion) throws SQLException {
+        String query = "SELECT * FROM libro WHERE " +
+                "titulo = ? AND anio_publicacion = ? AND no_paginas = ? AND edicion = ? AND activo = 1";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, titulo);
+            stmt.setInt(2, anio);
+            stmt.setInt(3, paginas);
+            stmt.setString(4, edicion);
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                LibroModel libro = transformToModel(resultSet);
+                return Optional.ofNullable(libro);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta geyByTituloAnioPaginasEdicion en LibroRepositoryImpl");
+            throw e;
+        }
     }
 
     @Override
-    public LibroModel delete(Integer id) {
-        return null;
+    public Optional<LibroModel> save(LibroDTO book) throws SQLException {
+        String query = "INSERT INTO libro (titulo, anio_publicacion, no_paginas, edicion, id_editorial, activo) VALUES (?,?,?,?,?,?)";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, book.titulo());
+            stmt.setInt(2, book.anio_publicacion());
+            stmt.setInt(3, book.paginas());
+            stmt.setString(4, book.edicion());
+            stmt.setLong(5, book.id_editorial());
+            stmt.setInt(6, 1);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return getByTituloAnioPaginasEdicion(book.titulo(),book.anio_publicacion(), book.paginas(), book.edicion());
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: El libro ya existe.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al crear nuevo libro.");
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Boolean addUnits(Long id_libro, Integer numberUnits) throws SQLException {
+        String values = " (?,1)";
+        StringBuilder q = new StringBuilder("INSERT INTO ejemplar_libro (id_libro, activo) VALUES");
+
+        for (int i=1; i<=numberUnits; i++) {
+            if (i!=numberUnits) {
+                q.append(values).append(",");
+            } else {
+                q.append(values);
+            }
+        }
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(q.toString())) {
+
+            for (int i=1; i<=numberUnits; i++) {
+                stmt.setLong(i, id_libro);
+            }
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al crear nuevos ejemplares de libro.");
+        }
+    }
+
+    @Override
+    public Boolean delete(Long id) throws SQLException {
+        String query = "DELETE FROM libro WHERE id = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al eliminar libro.");
+        }
+    }
+
+    @Override
+    public Boolean relateLibroAutor(Long id_libro, Long id_autor) throws SQLException {
+        /**
+         * Establecer relacion muchos a muchos entre libro y autor
+         */
+        String query = "INSERT INTO libro_autor (id_libro, id_autor, activo) VALUES (?,?,1)";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id_libro);
+            stmt.setLong(2, id_autor);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: El libro ya existe.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al crear nueva relacion de nuevo libro.");
+        }
+    }
+
+    @Override
+    public Boolean relateLibroCategoria(Long id_libro, Long id_categoria) throws SQLException {
+        /**
+         * Establecer relacion muchos a muchos entre libro y categoria
+         */
+        String query = "INSERT INTO categoria_libro (id_categoria, id_libro, activo) VALUES (?,?,1)";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id_categoria);
+            stmt.setLong(2, id_libro);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: El libro ya existe.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al crear nueva relacion de nuevo libro.");
+        }
+    }
+
+    public Boolean deleteRelationLibroAutor(Long id_libro, Long id_autor) throws SQLException {
+        String query = "DELETE from libro_autor WHERE id_libro = ? AND id_autor = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id_libro);
+            stmt.setLong(2, id_autor);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al eliminar relacion de libro-autor.");
+        }
+    }
+
+    public Boolean deleteRelationLibroCategoria(Long id_libro, Long id_categoria) throws SQLException {
+        String query = "DELETE from categoria_libro WHERE id_libro = ? AND id_categoria = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id_libro);
+            stmt.setLong(2, id_categoria);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al eliminar relacion de libro-categoria.");
+        }
     }
 
     private String createQuery(
@@ -308,5 +515,26 @@ public class LibroRepositoryImp implements LibroRepository {
         }
 
         return list; // Si no devuelve nada la consulta regresa una lista vacía
+    }
+
+    private LibroModel transformToModel(ResultSet resultSet) {
+        try {
+            if (resultSet.next()) {
+                Year anio = Year.of(resultSet.getInt("anio_publicacion")) ;
+                return new LibroModel.Builder()
+                        .setId(resultSet.getLong("id"))
+                        .setTitulo(resultSet.getString("titulo"))
+                        .setAnio_publicacion(anio)
+                        .setNo_paginas(resultSet.getInt("no_paginas"))
+                        .setEdicion(resultSet.getString("edicion"))
+                        .setId_editorial(resultSet.getLong("id_editorial"))
+                        .setActivo(resultSet.getInt("activo"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al transformar el resultado de la consutla a objeto LibroModel");;
+        }
+
+        return null;
     }
 }

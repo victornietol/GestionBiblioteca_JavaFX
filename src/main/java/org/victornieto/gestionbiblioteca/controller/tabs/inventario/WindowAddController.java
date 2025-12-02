@@ -16,24 +16,33 @@ import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.victornieto.gestionbiblioteca.dto.CategoriaFormDTO;
 import org.victornieto.gestionbiblioteca.dto.EditorialFormDTO;
+import org.victornieto.gestionbiblioteca.dto.LibroDTO;
+import org.victornieto.gestionbiblioteca.dto.LibroFormDTO;
 import org.victornieto.gestionbiblioteca.model.AutorModel;
 import org.victornieto.gestionbiblioteca.model.CategoriaModel;
 import org.victornieto.gestionbiblioteca.model.EditorialModel;
+import org.victornieto.gestionbiblioteca.model.LibroModel;
 import org.victornieto.gestionbiblioteca.repository.*;
 import org.victornieto.gestionbiblioteca.service.AutorService;
 import org.victornieto.gestionbiblioteca.service.CategoriaService;
 import org.victornieto.gestionbiblioteca.service.EditorialService;
+import org.victornieto.gestionbiblioteca.service.LibroService;
+import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Year;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 public class WindowAddController {
     @FXML public TextField labelTitulo;
     @FXML public TextField labelEdicion;
-    @FXML public TextField LabelAnio;
+    @FXML public TextField labelAnio;
+    @FXML public TextField labelPaginas;
     @FXML public TextField numberUnits;
     @FXML public Slider sliderUnits;
 
@@ -47,6 +56,7 @@ public class WindowAddController {
     private final AutorService autorService = new AutorService();
     private final CategoriaService categoriaService = new CategoriaService();
     private final EditorialService editorialService = new EditorialService();
+    private final LibroService libroService = new LibroService();
 
     private List<CategoriaModel> listCat;
     private List<EditorialModel> listEdit;
@@ -61,7 +71,49 @@ public class WindowAddController {
         loadEditoriales();
         loadAutor();
         configSliderAndTextUnits();
+        configLabelAnioAndPag();
+    }
 
+    @FXML
+    public void onSave(ActionEvent event) {
+        String titulo = getValueTittulo();
+        String edicion = getValueEdicion();
+        int units = getUnitsValue();
+        int anio = getValueAnio();
+        List<String> autores = getValuesAutores();
+        List<String> categorias = getValuesCategorias();
+        String editorial = getValueEditorial();
+        int paginas = getValuePaginas();
+
+        AlertWindow alertWindow = new AlertWindow();
+        boolean confirm = alertWindow.generateConfirmation("Confirmar", "¿Confirmar guardado?", null);
+
+        if (confirm) {
+
+            LibroModel newLibro;
+
+            try {
+                LibroFormDTO libroFormDTO = new LibroFormDTO(titulo, anio, paginas, edicion);
+                Optional<LibroModel> newLibroOp =  libroService.createNewTitle(libroFormDTO, categorias, autores, editorial, units);
+                if (newLibroOp.isEmpty()) {
+                    alertWindow.generateError("Error", "Error al registrar el libro nuevo y sus ejemplares", null);
+                } else {
+                    newLibro = newLibroOp.get();
+                    alertWindow.generateInformation(
+                            "Información",
+                            "Operación exitosa, se agrergaron",
+                            "Titulo = " + newLibro.getTitulo().substring(0,1).toUpperCase() + newLibro.getTitulo().substring(1) + "\nUnidades = " + units);
+                    closeWindow(event);
+                }
+            } catch (RuntimeException e) {
+                alertWindow.generateError("Error", e.getMessage(), null);
+            }
+        }
+    }
+
+    @FXML
+    public void onCancel(ActionEvent event) {
+        closeWindow(event);
     }
 
     @FXML
@@ -202,6 +254,11 @@ public class WindowAddController {
         }
     }
 
+    private void closeWindow(ActionEvent event) {
+        Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stageCurrent.close();
+    }
+
     private void loadCategorias() {
         listCat = categoriaService.getAll();
         for (CategoriaModel c: listCat) {
@@ -299,6 +356,71 @@ public class WindowAddController {
                 }
             }
         });
+    }
+
+    private void configLabelAnioAndPag() {
+        labelAnio.setTextFormatter(new TextFormatter<>(change -> {
+            String newValue = change.getControlNewText();
+            if (newValue.matches("\\d{0,4}")) {
+                return change;
+            }
+            return null;
+        }));
+
+        labelPaginas.setTextFormatter(new TextFormatter<>(change -> {
+            String newValue = change.getControlNewText();
+            if (newValue.matches("\\d+")) {
+                return change;
+            }
+            return null;
+        }));
+    }
+
+    private String getValueEditorial() {
+        if (listViewEditSelected.getItems().isEmpty()) {
+            return "";
+        }
+        return listViewEditSelected.getItems().getFirst();
+    }
+
+    private List<String> getValuesCategorias() {
+        List<String> list = new ArrayList<>();
+        if (listViewCatSelected.getItems().isEmpty()) {
+            return list;
+        }
+        return listViewCatSelected.getItems();
+    }
+
+    private List<String> getValuesAutores() {
+        List<String> list = new ArrayList<>();
+        if (listViewAutoresSelected.getItems().isEmpty()) {
+            return list;
+        }
+        return listViewAutoresSelected.getItems();
+    }
+
+    private Integer getValueAnio() {
+        String text = labelAnio.getText().replaceAll("\\s+", "");
+        if (text.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(text);
+    }
+
+    private String getValueTittulo() {
+        return labelTitulo.getText().trim().replaceAll("\\s+", " ");
+    }
+
+    private String getValueEdicion() {
+        return labelEdicion.getText().trim().replaceAll("\\s+", " ");
+    }
+
+    private Integer getValuePaginas() {
+        String text = labelPaginas.getText().replaceAll("\\s+", "");
+        if (text.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(text);
     }
 
 }

@@ -172,6 +172,32 @@ public class AutorRepositoryImpl implements AutorRepository {
         }
     }
 
+    public Optional<AutorModel> getByNameComplete(String nombreAndApellidos) throws SQLException {
+        /**
+         * Obtener un autor, en caso de no encontrarlo se devuelve empty. Se introduce el nombre en un solo string
+         */
+        String query;
+        query = "SELECT * " +
+                "FROM autor " +
+                "WHERE concat(nombre, ' ', apellido_p, ' ', COALESCE(apellido_m, '')) = ? AND activo = 1 " +
+                "ORDER BY nombre ASC";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, nombreAndApellidos);
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                AutorModel autor = transformToModel(resultSet);
+                return Optional.ofNullable(autor);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta en AutorRepositoryImpl");
+            throw e;
+        }
+    }
+
     private AutorModel transformToModel(ResultSet resultSet) {
         try {
             if (resultSet.next()) {
