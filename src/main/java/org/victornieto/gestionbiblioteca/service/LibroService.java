@@ -168,6 +168,18 @@ public class LibroService {
         }
     }
 
+    public Boolean removeEjemplarLibro(Long id_ejemplar) {
+        try {
+            if(libroRepository.removeEjemplarLibro(id_ejemplar)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     private Optional<LibroModel> create(LibroDTO libro) throws IllegalArgumentException {
         /**
          * Guarda y crea la information de la entidad libro solamente

@@ -15,6 +15,7 @@ public interface LibroRepository {
     Optional<LibroModel> save(LibroDTO book) throws SQLException;
     Boolean addUnits(Long id_libro, Integer numberUnits) throws SQLException;
     Boolean delete(Long id) throws SQLException;
+    Boolean removeEjemplarLibro(Long id_ejemplar) throws SQLException;
     Boolean relateLibroAutor(Long id_libro, Long id_autor) throws SQLException;
     Boolean relateLibroCategoria(Long id_libro, Long id_categoria) throws SQLException;
     Boolean deleteRelationLibroAutor(Long id_libro, Long id_autor) throws SQLException;

@@ -23,6 +23,7 @@ import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 import java.io.IOException;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class InventarioController {
@@ -150,7 +151,7 @@ public class InventarioController {
         if (radioBtnTitulos.isSelected()) {
             createContextMenuTitulos();
         } else {
-            createContextMenuUnidades();
+            createContextMenuUnidades(); // <----------------
         }
 
 
@@ -172,18 +173,21 @@ public class InventarioController {
             }
         });
 
-        itemDelete.setOnAction(e -> openWindowDelete(e));
+        itemDelete.setOnAction(e -> openWindowDelete());
 
         // asignar ContextMenu a cada fila
         setContextMenuPerRow();
     }
 
     private void createContextMenuUnidades() {
-        MenuItem itemAddUnit = new MenuItem("Agregar ejemplar 2");
-        MenuItem itemDelete = new MenuItem("Eliminar selección");
+        MenuItem itemDelete = new MenuItem("Eliminar ejemplar seleccionado");
 
         contextMenu.getItems().clear();
-        contextMenu.getItems().addAll(itemAddUnit, itemDelete);
+        contextMenu.getItems().addAll(itemDelete);
+
+        itemDelete.setOnAction(e -> openWindowDeleteUnits());
+
+        setContextMenuPerRow();
     }
 
     private void openWindowAddUnits(ActionEvent event) throws IOException {
@@ -212,7 +216,7 @@ public class InventarioController {
         showInventario();
     }
 
-    private void openWindowDelete(ActionEvent event) {
+    private void openWindowDelete() {
         LibroInventarioDTO selected = tableInventario.getSelectionModel().getSelectedItem();
         AlertWindow alertWindow = new AlertWindow();
 
@@ -226,6 +230,27 @@ public class InventarioController {
                 }
             }
         } catch (Exception e) {
+            alertWindow.generateError("Error", "Operación incompleta, ocurrió un error.", null);
+        }
+    }
+
+    private void openWindowDeleteUnits() {
+        LibroInventarioDTO selected = tableInventario.getSelectionModel().getSelectedItem();
+        AlertWindow alertWindow = new AlertWindow();
+
+        try {
+            boolean confirm = alertWindow.generateConfirmation("Confirmar", "¿Estás seguro de eliminar el ejemplar seleccionado de '" + selected.getTitulo() + "'?", null);
+            if (confirm) {
+                confirm = libroService.removeEjemplarLibro(Long.valueOf(selected.getId_libro()));
+                if (confirm) {
+                    alertWindow.generateInformation("Información", "Eliminación completada.", null);
+                    showInventario(); // recargar inventario
+                } else {
+                    throw new RuntimeException();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
             alertWindow.generateError("Error", "Operación incompleta, ocurrió un error.", null);
         }
     }

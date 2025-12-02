@@ -188,6 +188,29 @@ public class LibroRepositoryImp implements LibroRepository {
     }
 
     @Override
+    public Boolean removeEjemplarLibro(Long id_ejemplar) throws SQLException {
+        String query = "UPDATE ejemplar_libro SET activo = 0 WHERE id = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id_ejemplar);
+
+            int result = stmt.executeUpdate();
+
+            if (result != 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al remover ejemplar.");
+        }
+    }
+
+    @Override
     public Boolean relateLibroAutor(Long id_libro, Long id_autor) throws SQLException {
         /**
          * Establecer relacion muchos a muchos entre libro y autor
