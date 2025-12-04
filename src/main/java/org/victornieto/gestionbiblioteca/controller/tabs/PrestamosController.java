@@ -13,6 +13,8 @@ import org.victornieto.gestionbiblioteca.service.PrestamoService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.List;
 
 public class PrestamosController {
@@ -164,7 +166,7 @@ public class PrestamosController {
     private void generateFunctionMenuButton() {
         // Funciones para cada menuItem para actualizar el texto de menuBtnCriterio
         for (MenuItem item: menuBtnCriterio.getItems()) {
-            item.setOnAction(e -> menuBtnCriterio.setText(item.getText()));
+            item.setOnAction(e -> menuBtnCriterioConfig(item));
         }
 
         // Funciones para cada menuItem para actualizar el ordenamiento por columna
@@ -178,7 +180,76 @@ public class PrestamosController {
         }
     }
 
+    private void menuBtnCriterioConfig(MenuItem item) {
+        /**
+         * Configura los MenuItem para la búsqueda por campo y las cadenas permitidas para el campo de búsqueda
+         */
+        // Actualiza el valor de MenuButton
+        menuBtnCriterio.setText(item.getText());
+
+        // Dependiendo del valor de MenuButton se asigna un comportamiento al TextField
+        if(menuBtnCriterio.getText().equals("ID") || menuBtnCriterio.getText().equals("ID_Ejemplar")) { // Numeros
+            textFieldSearch.setText(""); // limpiar campo
+            textFieldSearch.setPromptText("Ingresa la búsqueda");
+
+            textFieldSearch.setTextFormatter(new TextFormatter<>(change -> {
+                String newValue = change.getControlNewText();
+                if (newValue.matches("\\d+") || newValue.isEmpty()) {
+                    return change;
+                }
+                return null;
+            }));
+
+        } else if (menuBtnCriterio.getText().equals("Fecha inicio") || menuBtnCriterio.getText().equals("Fecha entrega")) { // Fechas
+            textFieldSearch.setText(""); // limpiar campo
+            textFieldSearch.setPromptText("AAAA-MM-DD");
+
+            textFieldSearch.setTextFormatter(new TextFormatter<>(change -> {
+                String newValue = change.getControlNewText();
+
+                // Permitir vacío
+                if (newValue.isEmpty()) {
+                    return change;
+                }
+
+                // Permitir dígitos y guiones mientras se escribe
+                if (!newValue.matches("[0-9-]*")) {
+                    return null;
+                }
+
+                // Limitar longitud máxima 10
+                if (newValue.length() > 10) {
+                    return null;
+                }
+
+                // Si todavía no tiene el largo completo de fecha, y verificar que se introduzcan guiones para el formato
+                if (newValue.length() < 10) {
+                    if(newValue.length()==5 && newValue.charAt(4)!='-') {
+                        return null;
+                    }
+                    if(newValue.length()==8 && newValue.charAt(7)!='-') {
+                        return null;
+                    }
+                    return change;
+                }
+
+                // Si ya tiene exactamente 10 caracteres, validar formato yyyy-MM-dd
+                if (!newValue.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    return null;
+                }
+
+                return change;
+            }));
+
+        } else {
+            textFieldSearch.setPromptText("Ingresa la búsqueda");
+            textFieldSearch.setTextFormatter(new TextFormatter<>(change -> change));
+        }
+
+    }
+
     private void setColumns() {
+        // nombre de los atributos del tipo de dato asignado a cada TableColumn
         columnId.setCellValueFactory(new PropertyValueFactory<>("idPrestamo"));
         columnFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         columnFechaEntrega.setCellValueFactory(new PropertyValueFactory<>("fechaEntrega"));

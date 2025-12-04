@@ -1,8 +1,6 @@
 package org.victornieto.gestionbiblioteca.controller.tabs.inventario;
 
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,16 +11,11 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
-import org.victornieto.gestionbiblioteca.dto.CategoriaFormDTO;
-import org.victornieto.gestionbiblioteca.dto.EditorialFormDTO;
-import org.victornieto.gestionbiblioteca.dto.LibroDTO;
 import org.victornieto.gestionbiblioteca.dto.LibroFormDTO;
 import org.victornieto.gestionbiblioteca.model.AutorModel;
 import org.victornieto.gestionbiblioteca.model.CategoriaModel;
 import org.victornieto.gestionbiblioteca.model.EditorialModel;
 import org.victornieto.gestionbiblioteca.model.LibroModel;
-import org.victornieto.gestionbiblioteca.repository.*;
 import org.victornieto.gestionbiblioteca.service.AutorService;
 import org.victornieto.gestionbiblioteca.service.CategoriaService;
 import org.victornieto.gestionbiblioteca.service.EditorialService;
@@ -30,10 +23,7 @@ import org.victornieto.gestionbiblioteca.service.LibroService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.time.Year;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
