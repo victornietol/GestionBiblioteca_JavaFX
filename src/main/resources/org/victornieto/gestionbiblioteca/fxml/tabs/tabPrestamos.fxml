@@ -74,9 +74,10 @@
                   <MenuButton fx:id="menuBtnCriterio" maxWidth="120.0" mnemonicParsing="false" text="Todos" HBox.hgrow="ALWAYS">
                      <items>
                         <MenuItem mnemonicParsing="false" text="Todos" />
+                        <MenuItem mnemonicParsing="false" text="ID" />
                         <MenuItem mnemonicParsing="false" text="Fecha inicio" />
                         <MenuItem mnemonicParsing="false" text="Fecha entrega" />
-                        <MenuItem mnemonicParsing="false" text="ID" />
+                        <MenuItem mnemonicParsing="false" text="ID_Ejemplar" />
                         <MenuItem mnemonicParsing="false" text="Título" />
                         <MenuItem mnemonicParsing="false" text="Autor" />
                         <MenuItem mnemonicParsing="false" text="Cliente" />
@@ -100,9 +101,10 @@
                   <Pane prefHeight="200.0" prefWidth="5.0" />
                   <MenuButton fx:id="menuBtnOrdenCampo" maxWidth="120.0" mnemonicParsing="false" text="Fecha inicio" HBox.hgrow="ALWAYS">
                      <items>
+                        <MenuItem mnemonicParsing="false" text="ID" />
                         <MenuItem mnemonicParsing="false" text="Fecha inicio" />
                         <MenuItem mnemonicParsing="false" text="Fecha entrega" />
-                        <MenuItem mnemonicParsing="false" text="ID" />
+                        <MenuItem mnemonicParsing="false" text="ID_Ejemplar" />
                         <MenuItem mnemonicParsing="false" text="Título" />
                         <MenuItem mnemonicParsing="false" text="Autor" />
                         <MenuItem mnemonicParsing="false" text="Cliente" />
@@ -123,15 +125,16 @@
             </HBox>
             <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                <content>
-                  <TableView fx:id="tableInventario" maxHeight="Infinity">
+                  <TableView fx:id="tablePrestamos" maxHeight="Infinity">
                      <columns>
-                        <TableColumn fx:id="columnEditorial" editable="false" prefWidth="75.0" sortable="false" text="Fecha inicio" />
-                        <TableColumn fx:id="columnEdicion" editable="false" prefWidth="75.0" sortable="false" text="Fecha entrega" />
                         <TableColumn fx:id="columnId" editable="false" prefWidth="75.0" sortable="false" text="ID" />
+                        <TableColumn fx:id="columnFechaInicio" editable="false" prefWidth="75.0" sortable="false" text="Fecha inicio" />
+                        <TableColumn fx:id="columnFechaEntrega" editable="false" prefWidth="75.0" sortable="false" text="Fecha entrega" />
+                        <TableColumn fx:id="columnIdEjem" editable="false" prefWidth="75.0" sortable="false" text="ID_Ejemplar" />
                         <TableColumn fx:id="columnTitulo" editable="false" prefWidth="75.0" sortable="false" text="Titulo" />
                         <TableColumn fx:id="columnAutor" editable="false" prefWidth="75.0" sortable="false" text="Autor" />
-                        <TableColumn fx:id="columnCategoria" editable="false" prefWidth="75.0" sortable="false" text="Cliente" />
-                        <TableColumn fx:id="columnYear" editable="false" prefWidth="75.0" sortable="false" text="Atendió" />
+                        <TableColumn fx:id="columnCliente" editable="false" prefWidth="75.0" sortable="false" text="Cliente" />
+                        <TableColumn fx:id="columnAtendio" editable="false" prefWidth="75.0" sortable="false" text="Atendió" />
                      </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

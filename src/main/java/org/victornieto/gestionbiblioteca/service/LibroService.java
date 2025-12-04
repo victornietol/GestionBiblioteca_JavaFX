@@ -41,6 +41,10 @@ public class LibroService {
          */
         List<LibroInventarioDTO> books = new ArrayList<>();
 
+        if (coincidenceToSearch==null || coincidenceToSearch.isEmpty()) {
+            columnToSearch = "Todos";
+        }
+
         // Ajustar nombres de las categorias de acuerdo a las columnas de la BD
         columnToSearch = columnsValueConverts.get(columnToSearch);
         orderByColumn = columnsValueConverts.get(orderByColumn);
