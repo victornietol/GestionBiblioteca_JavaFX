@@ -7,4 +7,14 @@ public class PrestamosController {
 
     @FXML
     public AnchorPane rootPrestamos;
+
+    @FXML
+    public void showInventario() {
+
+    }
+
+    @FXML
+    public void add() {
+
+    }
 }
