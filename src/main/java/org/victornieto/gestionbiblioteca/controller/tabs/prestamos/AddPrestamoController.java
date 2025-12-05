@@ -2,15 +2,10 @@ package org.victornieto.gestionbiblioteca.controller.tabs.prestamos;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
-import org.victornieto.gestionbiblioteca.controller.HomeController;
-import org.victornieto.gestionbiblioteca.controller.LoginController;
-import org.victornieto.gestionbiblioteca.dto.LibroDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoDTO;
 import org.victornieto.gestionbiblioteca.model.LibroModel;
 import org.victornieto.gestionbiblioteca.model.PrestamoModel;
@@ -20,7 +15,6 @@ import org.victornieto.gestionbiblioteca.service.LibroService;
 import org.victornieto.gestionbiblioteca.service.PrestamoService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 

@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
+import java.util.Arrays;
 import java.util.List;
 
 public class PrestamosController {
@@ -35,6 +37,7 @@ public class PrestamosController {
     @FXML public MenuButton menuBtnCriterio;
     @FXML public TextField textFieldSearch;
     @FXML public Button btnSearch;
+    @FXML public Button btnDevolver;
     @FXML public MenuButton menuBtnOrdenCampo;
     @FXML public MenuButton menuBtnOrden;
 
@@ -58,6 +61,8 @@ public class PrestamosController {
     private String coincidenceToSearch;
     private String orderByColumn;
     private Boolean orderDesc;
+
+    private ContextMenu contextMenu = new ContextMenu();
 
     public UsuarioModel userLogged;
 
@@ -99,6 +104,7 @@ public class PrestamosController {
                 progressBarLoad.setProgress(0.70);
                 ObservableList<PrestamoListDTO> data = FXCollections.observableArrayList(prestamosList);
                 tablePrestamos.setItems(data);
+                createContextMenuPerPrestamo();
             }
 
             numberRows.setText(String.valueOf(prestamosList.size()));
@@ -150,6 +156,46 @@ public class PrestamosController {
 
         newStage.showAndWait();
         showPrestamos();
+    }
+
+    @FXML
+    public void returnPrestamo() {
+        btnDevolver.setDisable(true);
+        AlertWindow alertWindow = new AlertWindow();
+
+        PrestamoListDTO selected = tablePrestamos.getSelectionModel().getSelectedItem();
+
+        try {
+            boolean confirm = alertWindow.generateConfirmation(
+                    "Confirmación",
+                    "¿Estás seguro de confirmar la devolución del siguiente préstamo?",
+                    "Detalles:\n\nID del préstamo: " + selected.idPrestamo() +
+                            "\nTítulo del libro: " + selected.getTitulo() +
+                            "\nID del ejemplar: " + selected.idEjemplar() +
+                            "\nPrestado a: " + selected.getCliente()
+                    );
+
+            if (confirm) {
+                boolean returned = prestamoService.returnPrestamo(selected.idPrestamo(), selected.idEjemplar());
+
+                if(returned) {
+                    alertWindow.generateInformation(
+                            "Información",
+                            "Se devolvió el ejemplar con éxito.",
+                            null
+                    );
+                    showPrestamos();
+                } else {
+                    throw new RuntimeException("Ocurrió un error al devolver.");
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            alertWindow.generateError("Error", e.getMessage(), null);
+        }
+
+        btnDevolver.setDisable(false);
     }
 
     private List<PrestamoListDTO> generatePrestamosList() {
@@ -276,6 +322,39 @@ public class PrestamosController {
             textFieldSearch.setTextFormatter(new TextFormatter<>(change -> change));
         }
 
+    }
+
+    private void createContextMenuPerPrestamo() {
+        MenuItem itemReturnPrestamo = new MenuItem("Devolver préstamo");
+
+        contextMenu.getItems().clear();
+        contextMenu.getItems().add(itemReturnPrestamo);
+
+        itemReturnPrestamo.setOnAction(e -> returnPrestamo());
+
+        setContextMenuPerRow();
+    }
+
+    private void setContextMenuPerRow() {
+        tablePrestamos.setRowFactory(tv -> {
+            TableRow<PrestamoListDTO> row = new TableRow<>();
+
+            row.setOnContextMenuRequested(event -> {
+                if (!row.isEmpty()) {
+                    tablePrestamos.getSelectionModel().select(row.getIndex());
+                    contextMenu.show(row, event.getSceneX(), event.getScreenY());
+                }
+            });
+
+            // Evitar mostrar menú en filas vacías
+            row.setOnMouseClicked(event -> {
+                if (event.getButton().equals(MouseButton.SECONDARY) && row.isEmpty()) {
+                    contextMenu.hide();
+                }
+            });
+
+            return row;
+        });
     }
 
     public void setUserLogged(UsuarioModel userLogged) {

@@ -135,7 +135,24 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
 
     @Override
     public Boolean returnPrestamo(Long idPrestamo) throws SQLException {
-        return null;
+        String query = "UPDATE prestamo SET activo = 0 WHERE id = ?";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, idPrestamo);
+
+            int result = stmt.executeUpdate();
+            if (result!=0) {
+                return true;
+            } else {
+                throw new SQLException("Error al realizar la devolución del préstamo.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al realizar la devolución del préstamo.");
+        }
     }
 
 

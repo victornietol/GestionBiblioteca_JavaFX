@@ -62,4 +62,23 @@ public class PrestamoService {
         }
         return Optional.empty();
     }
+
+    public Boolean returnPrestamo(Long idPrestamo, Long idEjemplar) {
+        /**
+         * Desactiva el préstamo indicado y reactiva el ejemplar indicado.
+         */
+
+        try {
+            boolean returned = prestamoRepository.returnPrestamo(idPrestamo);
+
+            if(returned) {
+                // Reactivar el ejemplar
+                return libroService.reactiveEjemplar(idEjemplar);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return false;
+    }
 }

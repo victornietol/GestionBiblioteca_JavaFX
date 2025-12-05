@@ -151,7 +151,7 @@ public class InventarioController {
         if (radioBtnTitulos.isSelected()) {
             createContextMenuTitulos();
         } else {
-            createContextMenuUnidades(); // <----------------
+            createContextMenuUnidades();
         }
 
 
