@@ -12,6 +12,7 @@ import org.victornieto.gestionbiblioteca.utility.ValidationUsuarioForm;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class UsuarioService {
@@ -108,6 +109,16 @@ public class UsuarioService {
 
         onProgress.accept(1.0); // manejar el ProgressIndicator de login controller
         return result;
+    }
+
+    public Optional<UsuarioModel> getUsuarioByUsername(String username) {
+        try {
+            UsuarioModel usuario = userRepository.getByUsername(username);
+            return usuario!=null ? Optional.of(usuario) : Optional.empty();
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException("Error al obtener el usuario.");
+        }
     }
 
     private HashMap<String, Object> validateData(UsuarioFormDTO userDTO) {

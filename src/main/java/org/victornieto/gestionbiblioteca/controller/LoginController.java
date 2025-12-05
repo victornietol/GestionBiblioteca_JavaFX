@@ -14,9 +14,12 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 import org.victornieto.gestionbiblioteca.service.UsuarioService;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 public class LoginController {
 
@@ -34,6 +37,8 @@ public class LoginController {
 
     @FXML
     private Button buttonSignup;
+
+    private UsuarioModel usuarioLogged;
 
     @FXML
     protected void onLoginClick(ActionEvent event) {
@@ -76,7 +81,20 @@ public class LoginController {
             }
 
             if (success) {
-                openHomeWindow(stageCurrent);
+                try {
+                    Optional<UsuarioModel> optional = userService.getUsuarioByUsername(username);
+                    optional.ifPresent(usuarioModel -> usuarioLogged = usuarioModel);
+                    openHomeWindow(stageCurrent);
+                } catch (Exception ex) {
+                    System.out.println("Error en controller: "+ Arrays.toString(ex.getStackTrace()));
+                    progressIndicatorLogin.setVisible(false);
+                    progressIndicatorLogin.setProgress(0);
+                    Alert alert = generateAlert("error", "Error inesperado al iniciar sesión.");
+                    alert.initOwner(stageCurrent);
+                    alert.showAndWait();
+                    buttonLogin.setDisable(false);
+                    buttonSignup.setDisable(false);
+                }
 
             } else { // Las credenciales no son correctas
                 progressIndicatorLogin.setVisible(false);
@@ -164,6 +182,10 @@ public class LoginController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/home.fxml"));
             Parent root = fxmlLoader.load();
 
+            // Cargar en Home el usuario logueado
+            HomeController controller = fxmlLoader.getController();
+            controller.setUserLogged(usuarioLogged);
+
             Stage stage = new Stage();
             stage.setTitle("Gestión de biblioteca");
             stage.setScene(new Scene(root));
@@ -176,5 +198,4 @@ public class LoginController {
             throw new RuntimeException(error);
         }
     }
-
 }

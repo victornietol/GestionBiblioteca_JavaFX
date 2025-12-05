@@ -99,6 +99,36 @@ public class LibroRepositoryImp implements LibroRepository {
     }
 
     @Override
+    public Optional<LibroModel> getTituloByIdEjemplar(Long id) throws SQLException {
+        /**
+         * Obtener datos de un libro mediante el id del ejemplar
+         */
+        String query = """
+                SELECT
+                	l.id AS id,
+                    l.titulo AS titulo,
+                    l.anio_publicacion AS anio_publicacion,
+                    l.no_paginas AS no_paginas,
+                    l.edicion AS edicion,
+                    l.id_editorial AS id_editorial,
+                    l.activo AS activo
+                FROM ejemplar_libro ej
+                JOIN libro l ON (ej.id_libro = l.id)
+                WHERE ej.id = ? AND ej.activo = 1
+                """;
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id);
+            ResultSet resultSet = stmt.executeQuery();
+            return Optional.ofNullable(transformToModel(resultSet));
+        } catch (SQLException e) {
+            throw new SQLException("Error al obtener libro por ID en LibroRepository");
+        }
+    }
+
+    @Override
     public Optional<LibroModel> save(LibroDTO book) throws SQLException {
         String query = "INSERT INTO libro (titulo, anio_publicacion, no_paginas, edicion, id_editorial, activo) VALUES (?,?,?,?,?,?)";
 
@@ -207,6 +237,25 @@ public class LibroRepositoryImp implements LibroRepository {
         } catch (SQLException e) {
             System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
             throw new SQLException("Error al remover ejemplar.");
+        }
+    }
+
+    @Override
+    public Boolean reactivateEjemplar(Long id_ejemplar) throws SQLException {
+        String query = "UPDATE ejemplar_libro SET activo = 1 WHERE id = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id_ejemplar);
+
+            int result = stmt.executeUpdate();
+
+            return result != 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en LibroRepositoryImpl");
+            throw new SQLException("Error al reactivar ejemplar.");
         }
     }
 

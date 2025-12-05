@@ -85,9 +85,9 @@
                      </items>
                   </MenuButton>
                   <Pane prefHeight="200.0" prefWidth="5.0" />
-                  <TextField fx:id="textFieldSearch" onAction="#showInventario" promptText="Ingresa la búsqueda" />
+                  <TextField fx:id="textFieldSearch" onAction="#showPrestamos" promptText="Ingresa la búsqueda" />
                   <Pane prefHeight="200.0" prefWidth="5.0" />
-                  <Button fx:id="btnSearch" mnemonicParsing="false" onAction="#showInventario">
+                  <Button fx:id="btnSearch" mnemonicParsing="false" onAction="#showPrestamos">
                      <graphic>
                         <ImageView pickOnBounds="true" preserveRatio="false">
                            <image>

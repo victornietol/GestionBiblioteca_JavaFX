@@ -3,15 +3,26 @@ package org.victornieto.gestionbiblioteca.controller.tabs;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.victornieto.gestionbiblioteca.controller.tabs.prestamos.AddPrestamoController;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 import org.victornieto.gestionbiblioteca.service.PrestamoService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
+import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
@@ -48,17 +59,19 @@ public class PrestamosController {
     private String orderByColumn;
     private Boolean orderDesc;
 
+    public UsuarioModel userLogged;
+
     @FXML
     public void initialize() {
         this.prestamoService = new PrestamoService();
 
         generateFunctionMenuButton();
         setColumns();
-        showInventario();
+        showPrestamos();
     }
 
     @FXML
-    public void showInventario() {
+    public void showPrestamos() {
         labelBuscando.setVisible(true);
         tablePrestamos.getItems().clear();
         progressBarLoad.setVisible(true);
@@ -118,8 +131,25 @@ public class PrestamosController {
     }
 
     @FXML
-    public void add() {
+    public void add(ActionEvent event) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/prestamos/addPrestamo.fxml"));
+        Parent parent = fxmlLoader.load();
 
+        // cargar usuario que realiza la transacción de prestamo
+        AddPrestamoController controller = fxmlLoader.getController();
+        controller.setUserLogged(userLogged);
+
+        Stage newStage = new Stage();
+        newStage.setTitle("Nuevo");
+        newStage.setScene(new Scene(parent));
+
+        newStage.initModality(Modality.WINDOW_MODAL);
+
+        Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        newStage.initOwner(stageCurrent);
+
+        newStage.showAndWait();
+        showPrestamos();
     }
 
     private List<PrestamoListDTO> generatePrestamosList() {
@@ -188,7 +218,7 @@ public class PrestamosController {
         menuBtnCriterio.setText(item.getText());
 
         // Dependiendo del valor de MenuButton se asigna un comportamiento al TextField
-        if(menuBtnCriterio.getText().equals("ID") || menuBtnCriterio.getText().equals("ID_Ejemplar")) { // Numeros
+        if(menuBtnCriterio.getText().equals(PrestamosViewTitlesMenuBtn.ID) || menuBtnCriterio.getText().equals(PrestamosViewTitlesMenuBtn.ID_EJEMPLAR)) { // Numeros
             textFieldSearch.setText(""); // limpiar campo
             textFieldSearch.setPromptText("Ingresa la búsqueda");
 
@@ -200,7 +230,7 @@ public class PrestamosController {
                 return null;
             }));
 
-        } else if (menuBtnCriterio.getText().equals("Fecha inicio") || menuBtnCriterio.getText().equals("Fecha entrega")) { // Fechas
+        } else if (menuBtnCriterio.getText().equals(PrestamosViewTitlesMenuBtn.FECHA_INICIO) || menuBtnCriterio.getText().equals(PrestamosViewTitlesMenuBtn.FECHA_ENTREGA)) { // Fechas
             textFieldSearch.setText(""); // limpiar campo
             textFieldSearch.setPromptText("AAAA-MM-DD");
 
@@ -246,6 +276,10 @@ public class PrestamosController {
             textFieldSearch.setTextFormatter(new TextFormatter<>(change -> change));
         }
 
+    }
+
+    public void setUserLogged(UsuarioModel userLogged) {
+        this.userLogged = userLogged;
     }
 
     private void setColumns() {

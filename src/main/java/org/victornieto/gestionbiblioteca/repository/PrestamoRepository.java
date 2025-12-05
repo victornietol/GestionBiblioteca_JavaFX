@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface PrestamoRepository {
 
     List<PrestamoListDTO> getPrestamosList(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException;
+    Optional<PrestamoModel> getById(Long id) throws SQLException;
+    Optional<PrestamoModel> getPrestamosActiveByAllColumns(PrestamoDTO prestamoDTO) throws SQLException;
     Optional<PrestamoModel> newPrestamo(PrestamoDTO prestamo) throws SQLException;
     Boolean returnPrestamo(Long idPrestamo) throws SQLException;
 }

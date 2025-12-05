@@ -58,6 +58,17 @@ public class LibroService {
         return books;
     }
 
+    public Optional<LibroModel> getTituloByIdEjemplar(Long id) {
+        /**
+         * Obtener datos de un libro mediante el id del ejemplar
+         */
+        try {
+            return libroRepository.getTituloByIdEjemplar(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Optional<LibroModel> createNewTitle(
             LibroFormDTO libroFormDTO, List<String> categorias, List<String> autores, String editorial, Integer unidades) {
         /**
@@ -179,6 +190,14 @@ public class LibroService {
             } else {
                 return false;
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Boolean reactiveEjemplar(Long id_ejemplar) {
+        try {
+            return libroRepository.reactivateEjemplar(id_ejemplar);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }

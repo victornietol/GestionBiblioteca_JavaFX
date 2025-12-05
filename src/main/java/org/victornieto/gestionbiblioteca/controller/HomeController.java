@@ -6,6 +6,7 @@ import org.victornieto.gestionbiblioteca.controller.tabs.ClientesControllers;
 import org.victornieto.gestionbiblioteca.controller.tabs.InventarioController;
 import org.victornieto.gestionbiblioteca.controller.tabs.PrestamosController;
 import org.victornieto.gestionbiblioteca.controller.tabs.ReportesController;
+import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
 public class HomeController {
 
@@ -29,5 +30,16 @@ public class HomeController {
     @FXML
     private ReportesController tabReportesController;
 
+    private UsuarioModel userLogged;
 
+    public void setUserLogged(UsuarioModel userLogged) {
+        this.userLogged = userLogged;
+        initChildControllers();
+    }
+
+    private void initChildControllers() {
+        if (tabPrestamosController != null) {
+            tabPrestamosController.setUserLogged(userLogged);
+        }
+    }
 }

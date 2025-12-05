@@ -23,6 +23,34 @@ public class PrestamoModel {
         this.activo = activo;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public LocalDate getFechaFin() {
+        return fechaFin;
+    }
+
+    public Long getFkCliente() {
+        return fkCliente;
+    }
+
+    public Long getFkUsuario() {
+        return fkUsuario;
+    }
+
+    public Long getIdEjemplar() {
+        return idEjemplar;
+    }
+
+    public Integer getActivo() {
+        return activo;
+    }
+
     public static IdStep builder() {
         return new Builder();
     }

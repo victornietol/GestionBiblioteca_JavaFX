@@ -18,4 +18,5 @@ module org.victornieto.gestionbiblioteca {
     opens org.victornieto.gestionbiblioteca.controller.tabs to javafx.fxml;
     opens org.victornieto.gestionbiblioteca.dto to javafx.base;
     opens org.victornieto.gestionbiblioteca.controller.tabs.inventario to javafx.fxml;
+    opens org.victornieto.gestionbiblioteca.controller.tabs.prestamos to javafx.fxml;
 }

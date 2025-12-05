@@ -4,17 +4,16 @@ import org.victornieto.gestionbiblioteca.database.ConnectionDBImpl_MySQL;
 import org.victornieto.gestionbiblioteca.dto.PrestamoDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
 import org.victornieto.gestionbiblioteca.model.PrestamoModel;
+import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 
 public class PrestamoRepositoryImpl implements PrestamoRepository{
 
-    private final Set<String> numericColums = Set.of("pre.id_prestamo", "pre.fecha_inicio", "pre.fecha_entrega", "pre.id_ejemplar");
+    private final Set<String> numericColums = Set.of("pre.id_prestamo", "pre.id_ejemplar");
+    private final Set<String> dateColumns = Set.of("pre.fecha_inicio", "pre.fecha_entrega");
     private HashMap<String, String> columnsValueConverts = new HashMap<>();
 
     public PrestamoRepositoryImpl() {
@@ -46,6 +45,11 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
                 if (numericColums.contains(columnToSearch)) {
                     // si es numerico
                     stmt.setInt(1, Integer.parseInt(coincidenceToSearch));
+
+                } else if (dateColumns.contains(columnToSearch)) {
+                    // si es fecha
+                    stmt.setDate(1, java.sql.Date.valueOf(coincidenceToSearch));
+
                 } else {
                     stmt.setString(1, coincidenceToSearch);
                 }
@@ -62,7 +66,70 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
     }
 
     @Override
+    public Optional<PrestamoModel> getById(Long id) throws SQLException {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PrestamoModel> getPrestamosActiveByAllColumns(PrestamoDTO prestamoDTO) throws SQLException {
+        /**
+         * Obtener un préstamo activo según los campos fecha_inicio, fecha_fin, fk_cliente, fk_usuario, id_ejemplar (PrestamoDTO)
+         */
+        String query = """
+                SELECT * FROM prestamo WHERE
+                    fecha_inicio = ? AND fecha_fin = ? AND fk_cliente = ? AND fk_usuario = ? AND id_ejemplar = ? AND activo = 1
+                """;
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, java.sql.Date.valueOf(prestamoDTO.fechaInicio()));
+            stmt.setDate(2, java.sql.Date.valueOf(prestamoDTO.fechaFin()));
+            stmt.setLong(3, prestamoDTO.fkCliente());
+            stmt.setLong(4, prestamoDTO.fkUsuario());
+            stmt.setLong(5, prestamoDTO.idEjemplar());
+
+            ResultSet resultSet = stmt.executeQuery();
+            PrestamoModel prestamoModel = transformToModel(resultSet);
+            return Optional.ofNullable(prestamoModel);
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener préstamo activo según todos los campos.");
+        }
+    }
+
+    @Override
     public Optional<PrestamoModel> newPrestamo(PrestamoDTO prestamo) throws SQLException {
+        String query = """
+                INSERT INTO prestamo (fecha_inicio, fecha_fin, fk_cliente, fk_usuario, id_ejemplar, activo) VALUES (?,?,?,?,?,1)
+                """;
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+
+            stmt.setDate(1, java.sql.Date.valueOf(prestamo.fechaInicio()));
+            stmt.setDate(2, java.sql.Date.valueOf(prestamo.fechaFin()));
+            stmt.setLong(3,prestamo.fkCliente());
+            stmt.setLong(4,prestamo.fkUsuario());
+            stmt.setLong(5,prestamo.idEjemplar());
+
+            int result = stmt.executeUpdate();
+
+            if (result!=0) {
+                return getPrestamosActiveByAllColumns(prestamo);
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en PrestamoRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: El préstamo ya existe.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al preparar la consulta en PrestamoRepositoryImpl");
+            throw new SQLException("Error al crear nuevo préstamo.");
+        }
+
         return Optional.empty();
     }
 
@@ -70,6 +137,8 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
     public Boolean returnPrestamo(Long idPrestamo) throws SQLException {
         return null;
     }
+
+
 
     private String createQuery(String columnToSearch, String coincidenceToSeach, String orderByColumn, boolean orderDesc) {
         String query = """
@@ -154,19 +223,39 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
         return list;
     }
 
+    private PrestamoModel transformToModel(ResultSet resultSet) {
+        try {
+            if (resultSet.next()) {
+                return PrestamoModel.builder()
+                        .id(resultSet.getLong("id"))
+                        .fechaInicio(resultSet.getDate("fecha_inicio").toLocalDate())
+                        .fechaFin(resultSet.getDate("fecha_fin").toLocalDate())
+                        .fkCliente(resultSet.getLong("fk_cliente"))
+                        .fkUsuario(resultSet.getLong("fk_usuario"))
+                        .idEjemplar(resultSet.getLong("id_ejemplar"))
+                        .activo(resultSet.getInt("activo"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al transformar el resultado de la consulta objeto PrestamoModel");
+        }
+
+        return null;
+    }
+
     private void loadValuesColumns() {
         /**
          * columnsValueConverts contiene los nombres de las columnas en la UI y su equivalencia a los nombres de las columnas de la consulta resultante de la BD
          */
-        columnsValueConverts.put("ID", "pre.id_prestamo");
-        columnsValueConverts.put("Fecha inicio", "pre.fecha_inicio");
-        columnsValueConverts.put("Fecha entrega", "pre.fecha_entrega");
-        columnsValueConverts.put("ID_Ejemplar", "pre.id_ejemplar");
-        columnsValueConverts.put("Título", "ejem.titulo");
-        columnsValueConverts.put("Autor", "aut.autor");
-        columnsValueConverts.put("Cliente", "pre.cliente");
-        columnsValueConverts.put("Atendió", "pre.usuario");
-        columnsValueConverts.put("Todos", "todos");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.ID, "pre.id_prestamo");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.FECHA_INICIO, "pre.fecha_inicio");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.FECHA_ENTREGA, "pre.fecha_entrega");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.ID_EJEMPLAR, "pre.id_ejemplar");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.TITULO, "ejem.titulo");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.AUTOR, "aut.autor");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.CLIENTE, "pre.cliente");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.ATENDIO, "pre.usuario");
+        columnsValueConverts.put(PrestamosViewTitlesMenuBtn.TODOS, "todos");
     }
 
 
