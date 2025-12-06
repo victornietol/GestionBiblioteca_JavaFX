@@ -165,4 +165,14 @@ public class ClienteModel {
             return new ClienteModel(id, username, passw, nombre, apellidoP, apellidoM, correo, activo);
         }
     }
+
+    @Override
+    public String toString() {
+        return nombre.substring(0,1).toUpperCase() + nombre.substring(1) + " " +
+                apellidoP.substring(0,1).toUpperCase() + apellidoP.substring(1) + " " +
+                (apellidoM!=null ?
+                        (apellidoM.substring(0,1).toUpperCase() + apellidoM.substring(1)) :
+                        ""
+                );
+    }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ClienteRepository {
+    Optional<ClienteModel> getByUsername(String username) throws SQLException;
     Optional<String> getNombreCompletoById(Long id) throws SQLException;
     List<ClienteListDTO> getListDTOAll(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDesc) throws SQLException;
     Optional<ClienteModel> save(ClienteFormDTO clienteFormDTO) throws SQLException;

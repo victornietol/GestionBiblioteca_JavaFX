@@ -1,8 +1,7 @@
 package org.victornieto.gestionbiblioteca.utility;
 
-import javax.crypto.spec.PSource;
+public class ValidateClienteForm implements ValidateForm{
 
-public class ValidationUsuarioForm implements ValidateForm {
     /**
      * Clase para validar las entradas de TextField.
      * Si la entrada es válida entonces se regresa true, de lo contrario false.
@@ -14,7 +13,6 @@ public class ValidationUsuarioForm implements ValidateForm {
     private final Integer LENGTH_NOMBRE = 50;
     private final Integer LENGTH_APELLIDOS = 50;
     private final Integer LENGTH_CORREO = 50;
-    private final Integer LENGTH_TELEFONO = 10;
 
 
     @Override
@@ -100,16 +98,4 @@ public class ValidationUsuarioForm implements ValidateForm {
         return true;
     }
 
-    public boolean validateTelefono(String telefono) {
-        if (telefono.matches(".*\\s.*")) {
-            return false;
-        }
-        if (telefono.length()>LENGTH_TELEFONO) {
-            return false;
-        }
-        if (!telefono.matches("[0-9]+")){
-            return false;
-        }
-        return true;
-    }
 }

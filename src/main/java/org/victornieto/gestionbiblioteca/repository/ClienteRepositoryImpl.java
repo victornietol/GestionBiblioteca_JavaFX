@@ -6,10 +6,7 @@ import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
 import org.victornieto.gestionbiblioteca.model.ClienteModel;
 import org.victornieto.gestionbiblioteca.utility.ClientesViewTitlesMenuBtn;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class ClienteRepositoryImpl implements ClienteRepository{
@@ -19,6 +16,26 @@ public class ClienteRepositoryImpl implements ClienteRepository{
 
     public ClienteRepositoryImpl() {
         loadValuesColumns();
+    }
+
+    @Override
+    public Optional<ClienteModel> getByUsername(String username) throws SQLException {
+        String query = "SELECT * FROM cliente WHERE username = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            ClienteModel newCliente = transformResultToModel(resultSet);
+
+            return Optional.ofNullable(newCliente);
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Ocurrió un error al buscar el usuario.");
+        }
     }
 
     @Override
@@ -80,7 +97,34 @@ public class ClienteRepositoryImpl implements ClienteRepository{
 
     @Override
     public Optional<ClienteModel> save(ClienteFormDTO clienteFormDTO) throws SQLException {
-        return Optional.empty();
+        String query = "INSERT INTO cliente (username, passw, nombre, apellido_p, apellido_m, correo, activo) VALUES (?,?,?,?,?,?,1)";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, clienteFormDTO.username());
+            stmt.setString(2, clienteFormDTO.password());
+            stmt.setString(3, clienteFormDTO.nombre());
+            stmt.setString(4, clienteFormDTO.apellidoP());
+            stmt.setString(5, clienteFormDTO.apellidoM());
+            stmt.setString(6, clienteFormDTO.correo());
+
+            int result = stmt.executeUpdate();
+
+            if (result!=0) {
+                // obtener usuario creado
+                return getByUsername(clienteFormDTO.username());
+            } else {
+                throw new SQLException();
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Error al preparar la consulta en ClienteRepositoryImpl. Key duplicada");
+            throw new SQLException("Error: el username ya existe, introduzca otro.");
+
+        } catch (SQLException e) {
+            throw new SQLException("Error al crear nuevo cliente");
+        }
     }
 
     @Override
@@ -157,6 +201,27 @@ public class ClienteRepositoryImpl implements ClienteRepository{
             );
         }
         return list;
+    }
+
+    private ClienteModel transformResultToModel(ResultSet resultSet) throws SQLException {
+        try {
+            if (resultSet.next()) {
+                return ClienteModel.builder()
+                        .id(resultSet.getLong("id"))
+                        .username(resultSet.getString("username"))
+                        .passw(resultSet.getString("passw"))
+                        .nombre(resultSet.getString("nombre"))
+                        .apellidoP(resultSet.getString("apellido_p"))
+                        .apellidoM(resultSet.getString("apellido_m"))
+                        .correo(resultSet.getString("correo"))
+                        .activo(resultSet.getInt("activo"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Ocurrio un error al transformar resultSet a Model");
+        }
+
+        return null;
     }
 
     private void loadValuesColumns() {

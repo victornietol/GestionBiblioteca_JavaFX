@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public class UsuarioService {
 
-    private final ValidateForm validateForm;
+    private final ValidationUsuarioForm validateForm;
     private final PasswordEncrypt encrypt;
     private UsuarioRepository userRepository;
 

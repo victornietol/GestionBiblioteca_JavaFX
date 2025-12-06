@@ -1,9 +1,15 @@
 package org.victornieto.gestionbiblioteca.service;
 
+import org.victornieto.gestionbiblioteca.dto.ClienteFormControllerDTO;
+import org.victornieto.gestionbiblioteca.dto.ClienteFormDTO;
 import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.model.ClienteModel;
 import org.victornieto.gestionbiblioteca.repository.ClienteRepository;
 import org.victornieto.gestionbiblioteca.repository.ClienteRepositoryImpl;
+import org.victornieto.gestionbiblioteca.utility.PasswordEncrypt;
+import org.victornieto.gestionbiblioteca.utility.PasswordEncryptArgon2;
+import org.victornieto.gestionbiblioteca.utility.ValidateClienteForm;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,5 +50,58 @@ public class ClienteService {
         }
 
         return clientes;
+    }
+
+    public Optional<ClienteModel> create(ClienteFormControllerDTO clienteDTO) {
+        PasswordEncrypt passwordEncrypt = new PasswordEncryptArgon2();
+
+        try {
+            validateClienteForm(clienteDTO); // Lanza Excepcion si algún campo no es valido
+
+            return clienteRepository.save(
+                    new ClienteFormDTO(
+                            clienteDTO.username(),
+                            passwordEncrypt.generateHash(clienteDTO.password1()),
+                            clienteDTO.nombre().toLowerCase(),
+                            clienteDTO.apellidoP().toLowerCase(),
+                            clienteDTO.apellidoM().toLowerCase(),
+                            clienteDTO.correo()
+                    )
+            );
+
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e.getMessage());
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private void validateClienteForm(ClienteFormControllerDTO clienteDTO) throws IllegalArgumentException {
+        ValidateClienteForm validateClienteForm = new ValidateClienteForm();
+
+        if (!validateClienteForm.validateUsername(clienteDTO.username())) {
+            throw new IllegalArgumentException("Username inválido.");
+        }
+
+        if (!clienteDTO.password1().equals(clienteDTO.password2())) {
+            throw new IllegalArgumentException("Las contraseñas no coinciden");
+        }
+
+        if (!validateClienteForm.validatePassword(clienteDTO.password1())) {
+            throw new IllegalArgumentException("Contraseña inválida");
+        }
+
+        if (!validateClienteForm.validateNombre(clienteDTO.nombre())) {
+            throw new IllegalArgumentException("Nombre inválido.");
+        }
+
+        if (!validateClienteForm.validateApellidoP(clienteDTO.apellidoP())) {
+            throw new IllegalArgumentException("Apellido paterno inválido.");
+        }
+
+        if (!validateClienteForm.validateCorreo(clienteDTO.correo())) {
+            throw new IllegalArgumentException("Correo inválido");
+        }
     }
 }

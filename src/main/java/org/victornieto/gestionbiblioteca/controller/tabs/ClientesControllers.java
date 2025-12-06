@@ -3,11 +3,19 @@ package org.victornieto.gestionbiblioteca.controller.tabs;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.victornieto.gestionbiblioteca.controller.tabs.prestamos.AddPrestamoController;
 import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
 import org.victornieto.gestionbiblioteca.service.ClienteService;
@@ -15,6 +23,7 @@ import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 import org.victornieto.gestionbiblioteca.utility.ClientesViewTitlesMenuBtn;
 import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ClientesControllers {
@@ -58,8 +67,21 @@ public class ClientesControllers {
     }
 
     @FXML
-    public void add() {
+    public void add(ActionEvent event) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/clientes/addCliente.fxml"));
+        Parent parent = fxmlLoader.load();
 
+        Stage newStage = new Stage();
+        newStage.setTitle("Nuevo");
+        newStage.setScene(new Scene(parent));
+
+        newStage.initModality(Modality.WINDOW_MODAL);
+
+        Stage stageCurrent = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        newStage.initOwner(stageCurrent);
+
+        newStage.showAndWait();
+        showClientes();
     }
 
     @FXML

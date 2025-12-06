@@ -8,5 +8,4 @@ public interface ValidateForm {
     boolean validateApellidoP(String apellidoP);
     boolean validateApellidoM(String apellidoM);
     boolean validateCorreo(String correo);
-    boolean validateTelefono(String telefono);
 }
