@@ -1,0 +1,168 @@
+package org.victornieto.gestionbiblioteca.model;
+
+public class ClienteModel {
+
+    private final Long id;
+    private final String username;
+    private final String passw;
+    private final String nombre;
+    private final String apellidoP;
+    private final String apellidoM;
+    private final String correo;
+    private final Integer activo;
+
+    private ClienteModel(Long id, String username, String passw,
+                         String nombre, String apellidoP, String apellidoM,
+                         String correo, Integer activo) {
+        this.id = id;
+        this.username = username;
+        this.passw = passw;
+        this.nombre = nombre;
+        this.apellidoP = apellidoP;
+        this.apellidoM = apellidoM;
+        this.correo = correo;
+        this.activo = activo;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassw() {
+        return passw;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getApellidoP() {
+        return apellidoP;
+    }
+
+    public String getApellidoM() {
+        return apellidoM;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public Integer getActivo() {
+        return activo;
+    }
+
+    // ===== BUILDER =====
+
+    public static IdStep builder() {
+        return new Builder();
+    }
+
+    public interface IdStep {
+        UsernameStep id(Long id);
+    }
+
+    public interface UsernameStep {
+        PasswStep username(String username);
+    }
+
+    public interface PasswStep {
+        NombreStep passw(String passw);
+    }
+
+    public interface NombreStep {
+        ApellidoPStep nombre(String nombre);
+    }
+
+    public interface ApellidoPStep {
+        ApellidoMStep apellidoP(String apellidoP);
+    }
+
+    public interface ApellidoMStep {
+        CorreoStep apellidoM(String apellidoM);
+    }
+
+    public interface CorreoStep {
+        ActivoStep correo(String correo);
+    }
+
+    public interface ActivoStep {
+        BuildStep activo(Integer activo);
+    }
+
+    public interface BuildStep {
+        ClienteModel build();
+    }
+
+    private static class Builder implements
+            IdStep, UsernameStep, PasswStep, NombreStep,
+            ApellidoPStep, ApellidoMStep, CorreoStep,
+            ActivoStep, BuildStep {
+
+        private Long id;
+        private String username;
+        private String passw;
+        private String nombre;
+        private String apellidoP;
+        private String apellidoM;
+        private String correo;
+        private Integer activo;
+
+        @Override
+        public UsernameStep id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        @Override
+        public PasswStep username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        @Override
+        public NombreStep passw(String passw) {
+            this.passw = passw;
+            return this;
+        }
+
+        @Override
+        public ApellidoPStep nombre(String nombre) {
+            this.nombre = nombre;
+            return this;
+        }
+
+        @Override
+        public ApellidoMStep apellidoP(String apellidoP) {
+            this.apellidoP = apellidoP;
+            return this;
+        }
+
+        @Override
+        public CorreoStep apellidoM(String apellidoM) {
+            this.apellidoM = apellidoM;
+            return this;
+        }
+
+        @Override
+        public ActivoStep correo(String correo) {
+            this.correo = correo;
+            return this;
+        }
+
+        @Override
+        public BuildStep activo(Integer activo) {
+            this.activo = activo;
+            return this;
+        }
+
+        @Override
+        public ClienteModel build() {
+            return new ClienteModel(id, username, passw, nombre, apellidoP, apellidoM, correo, activo);
+        }
+    }
+}

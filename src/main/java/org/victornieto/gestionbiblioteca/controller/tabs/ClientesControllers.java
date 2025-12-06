@@ -1,10 +1,255 @@
 package org.victornieto.gestionbiblioteca.controller.tabs;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
+import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
+import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.service.ClienteService;
+import org.victornieto.gestionbiblioteca.utility.AlertWindow;
+import org.victornieto.gestionbiblioteca.utility.ClientesViewTitlesMenuBtn;
+import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
+
+import java.util.List;
 
 public class ClientesControllers {
 
+    @FXML public AnchorPane rootClientes;
+
+    @FXML public Button btnDelete;
+    @FXML public MenuButton menuBtnCriterio;
+    @FXML public TextField textFieldSearch;
+    @FXML public Button btnSearch;
+    @FXML public MenuButton menuBtnOrdenCampo;
+    @FXML public MenuButton menuBtnOrden;
+
+    @FXML public TableView<ClienteListDTO> tableClientes;
+    @FXML public TableColumn<ClienteListDTO, String> columnUsername;
+    @FXML public TableColumn<ClienteListDTO, String> columnNombre;
+    @FXML public TableColumn<ClienteListDTO, String> columnCorreo;
+    @FXML public TableColumn<ClienteListDTO, Integer> columnPrestamos;
+    @FXML public TableColumn<ClienteListDTO, Integer> columnSanciones;
+
+    @FXML public Label labelBuscando;
+    @FXML public ProgressBar progressBarLoad;
+    @FXML public Label numberRows;
+
+    private ClienteService clienteService;
+    private List<ClienteListDTO> clientesList;
+    private String columnToSearch;
+    private String coincidenceToSearch;
+    private String orderByColumn;
+    private Boolean orderDesc;
+
+    private ContextMenu contextMenu = new ContextMenu();
+
     @FXML
-    public AnchorPane rootClientes;
+    public void initialize() {
+        this.clienteService = new ClienteService();
+
+        generateFunctionMenuButton();
+        setColumns();
+        showClientes();
+    }
+
+    @FXML
+    public void add() {
+
+    }
+
+    @FXML
+    public void deleteCliente() {
+
+    }
+
+    @FXML
+    public void showClientes() {
+        labelBuscando.setVisible(true);
+        tableClientes.getItems().clear();
+        progressBarLoad.setVisible(true);
+        progressBarLoad.setProgress(0.0);
+        btnSearch.setDisable(true);
+        setValues();
+        progressBarLoad.setProgress(0.20);
+
+        // Task para operaciones con BD
+        Task<Void> getClientesTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                clientesList = generateClientesList();
+                progressBarLoad.setProgress(0.50);
+                return null;
+            }
+        };
+
+        // Tarea ejecutada correctamente
+        getClientesTask.setOnSucceeded(e -> {
+            if (clientesList.isEmpty()) {
+                tableClientes.getItems().clear();
+
+            } else {
+                progressBarLoad.setProgress(0.70);
+                ObservableList<ClienteListDTO> data = FXCollections.observableArrayList(clientesList);
+                tableClientes.setItems(data);
+                createContextMenuPerPrestamo();
+            }
+
+            numberRows.setText(String.valueOf(clientesList.size()));
+            progressBarLoad.setProgress(1.0);
+            progressBarLoad.setVisible(false);
+            labelBuscando.setVisible(false);
+            btnSearch.setDisable(false);
+        });
+
+        // Tarea no se ejecuta correctamente
+        getClientesTask.setOnFailed(e -> {
+            numberRows.setText("0");
+            progressBarLoad.setProgress(1.0);
+            btnSearch.setDisable(false);
+
+            // Mostrar ventana de error
+            System.out.println("Error: " + getClientesTask.getException().getMessage());
+            AlertWindow alertWindow = new AlertWindow();
+            alertWindow.generateError(
+                    "Error",
+                    "Ocurrio un error al obtener los clientes.",
+                    null
+            );
+        });
+
+        Thread thread = new Thread(getClientesTask);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private List<ClienteListDTO> generateClientesList() {
+        /**
+         *
+         * Utiliza service para obtener los datos de los clientes
+         *
+         * @return una lista con los resultados, puede ser vacia o no dependiendo del resultado de la consulta
+         */
+
+        try {
+            return clienteService.getListDTOAll(
+                    columnToSearch, coincidenceToSearch, orderByColumn, orderDesc
+            );
+
+        } catch (Exception e) {
+            System.out.println("Ocurrió un error al ejecutar la tarea para recuperar los clientes");
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private void createContextMenuPerPrestamo() {
+        MenuItem itemDeleteCliente = new MenuItem("Eliminar cliente");
+
+        contextMenu.getItems().clear();
+        contextMenu.getItems().add(itemDeleteCliente);
+
+        itemDeleteCliente.setOnAction(e -> deleteCliente());
+
+        setContextMenuPerRow();
+    }
+
+    private void setContextMenuPerRow() {
+        tableClientes.setRowFactory(tv -> {
+            TableRow<ClienteListDTO> row = new TableRow<>();
+
+            row.setOnContextMenuRequested(event -> {
+                if (!row.isEmpty()) {
+                    tableClientes.getSelectionModel().select(row.getIndex());
+                    contextMenu.show(row, event.getSceneX(), event.getScreenY());
+                }
+            });
+
+            // Evitar mostrar menú en filas vacías
+            row.setOnMouseClicked(event -> {
+                if (event.getButton().equals(MouseButton.SECONDARY) && row.isEmpty()) {
+                    contextMenu.hide();
+                }
+            });
+
+            return row;
+        });
+    }
+
+    private void generateFunctionMenuButton() {
+        // Funciones para cada menuItem para actualizar el texto de menuBtnCriterio
+        for (MenuItem item: menuBtnCriterio.getItems()) {
+            item.setOnAction(e -> menuBtnCriterioConfig(item));
+        }
+
+        // Funciones para cada menuItem para actualizar el ordenamiento por columna
+        for (MenuItem item: menuBtnOrdenCampo.getItems()) {
+            item.setOnAction(e -> menuBtnOrdenCampo.setText(item.getText()));
+        }
+
+        // Funciones para cada menuItem para actualizar el ordenamiento ascendente o descendente
+        for (MenuItem item: menuBtnOrden.getItems()) {
+            item.setOnAction(e -> menuBtnOrden.setText(item.getText()));
+        }
+    }
+
+    private void menuBtnCriterioConfig(MenuItem item) {
+        /**
+         * Configura los MenuItem para la búsqueda por campo y las cadenas permitidas para el campo de búsqueda
+         */
+        // Actualiza el valor de MenuButton
+        menuBtnCriterio.setText(item.getText());
+
+        // Dependiendo del valor de MenuButton se asigna un comportamiento al TextField
+        if(menuBtnCriterio.getText().equals(ClientesViewTitlesMenuBtn.PRESTAMOS) || menuBtnCriterio.getText().equals(ClientesViewTitlesMenuBtn.SANCIONES)) { // Numeros
+            textFieldSearch.setText(""); // limpiar campo
+            textFieldSearch.setPromptText("Ingresa la búsqueda");
+
+            textFieldSearch.setTextFormatter(new TextFormatter<>(change -> {
+                String newValue = change.getControlNewText();
+                if (newValue.matches("\\d+") || newValue.isEmpty()) {
+                    return change;
+                }
+                return null;
+            }));
+
+        } else {
+            textFieldSearch.setPromptText("Ingresa la búsqueda");
+            textFieldSearch.setTextFormatter(new TextFormatter<>(change -> change));
+        }
+    }
+
+    private void setValues() {
+        /**
+         * Obtiene los valores de los elementos de la interfaz y los asigna a variables
+         */
+
+        // Columna en la que se busca coincidencia
+        columnToSearch = menuBtnCriterio.getText();
+
+        // Texto a buscar
+        coincidenceToSearch = textFieldSearch.getText();
+
+        // Ordenamiento por columna
+        orderByColumn = menuBtnOrdenCampo.getText();
+
+        // Ordenamiento ascendente o desc
+        if (menuBtnOrden.getText().equals("Ascendente")) {
+            orderDesc = false;
+        } else {
+            orderDesc = true;
+        }
+    }
+
+    private void setColumns() {
+        // nombre de los atributos del tipo de dato asignado a cada TableColumn
+        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        columnCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
+        columnPrestamos.setCellValueFactory(new PropertyValueFactory<>("prestamos"));
+        columnSanciones.setCellValueFactory(new PropertyValueFactory<>("sanciones"));
+    }
 }

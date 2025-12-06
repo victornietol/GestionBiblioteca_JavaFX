@@ -163,9 +163,13 @@ public class PrestamosController {
         btnDevolver.setDisable(true);
         AlertWindow alertWindow = new AlertWindow();
 
-        PrestamoListDTO selected = tablePrestamos.getSelectionModel().getSelectedItem();
-
         try {
+
+            PrestamoListDTO selected = tablePrestamos.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                throw new NullPointerException("Ocurrió un error al seleccionar un elemento. Verifique que se haya\nseleccionado un préstamo de la lista.");
+            }
+
             boolean confirm = alertWindow.generateConfirmation(
                     "Confirmación",
                     "¿Estás seguro de confirmar la devolución del siguiente préstamo?",
@@ -173,12 +177,12 @@ public class PrestamosController {
                             "\nTítulo del libro: " + selected.getTitulo() +
                             "\nID del ejemplar: " + selected.idEjemplar() +
                             "\nPrestado a: " + selected.getCliente()
-                    );
+            );
 
             if (confirm) {
                 boolean returned = prestamoService.returnPrestamo(selected.idPrestamo(), selected.idEjemplar());
 
-                if(returned) {
+                if (returned) {
                     alertWindow.generateInformation(
                             "Información",
                             "Se devolvió el ejemplar con éxito.",
@@ -189,6 +193,9 @@ public class PrestamosController {
                     throw new RuntimeException("Ocurrió un error al devolver.");
                 }
             }
+
+        } catch (NullPointerException e) {
+            alertWindow.generateError("Error", e.getMessage(), null);
 
         } catch (Exception e) {
             System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
