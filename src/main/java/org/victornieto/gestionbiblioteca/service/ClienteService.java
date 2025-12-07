@@ -77,6 +77,14 @@ public class ClienteService {
         }
     }
 
+    public Boolean remove(Long id) {
+        try {
+            return clienteRepository.delete(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     private void validateClienteForm(ClienteFormControllerDTO clienteDTO) throws IllegalArgumentException {
         ValidateClienteForm validateClienteForm = new ValidateClienteForm();
 

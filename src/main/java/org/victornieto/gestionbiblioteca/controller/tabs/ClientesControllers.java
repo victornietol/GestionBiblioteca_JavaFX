@@ -86,7 +86,46 @@ public class ClientesControllers {
 
     @FXML
     public void deleteCliente() {
+        btnDelete.setDisable(true);
+        AlertWindow alertWindow = new AlertWindow();
 
+        try {
+            ClienteListDTO selected = tableClientes.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                throw new NullPointerException("Ocurrió un error al seleccionar un elemento. Verifique que se haya\nseleccionado un cliente de la lista.");
+            }
+
+            boolean confirm = alertWindow.generateConfirmation(
+                    "Confirmación",
+                    "¿Estás seguro de confirmar la eliminación del siguiente cliente?",
+                    "Detalles:\n\nID del cliente: " + selected.id() +
+                            "\nNombre: " + selected.nombre() +
+                            "\nUsername: " + selected.username() +
+                            "\nCorreo: " + selected.correo()
+            );
+
+            if (confirm) {
+                boolean returned = clienteService.remove(selected.id());
+
+                if (returned) {
+                    alertWindow.generateInformation(
+                            "Información",
+                            "Se eliminó el cliente con éxito.",
+                            "Detalles:\n\nID cliente: " + selected.id() +
+                                    "\nUsername: " + selected.username()
+                    );
+                    showClientes();
+                } else {
+                    throw new RuntimeException("Ocurrió un error al eliminar.");
+                }
+            }
+
+
+        } catch (Exception e) {
+            alertWindow.generateError("Error", e.getMessage(),null);
+        }
+
+        btnDelete.setDisable(false);
     }
 
     @FXML
