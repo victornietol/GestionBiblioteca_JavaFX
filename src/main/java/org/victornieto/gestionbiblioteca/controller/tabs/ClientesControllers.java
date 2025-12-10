@@ -15,6 +15,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import org.victornieto.gestionbiblioteca.controller.tabs.clientes.SancionesClienteController;
 import org.victornieto.gestionbiblioteca.controller.tabs.prestamos.AddPrestamoController;
 import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
@@ -209,11 +211,21 @@ public class ClientesControllers {
 
     private void createContextMenuPerPrestamo() {
         MenuItem itemDeleteCliente = new MenuItem("Eliminar cliente");
+        MenuItem itemSanciones = new MenuItem("Ver sanciones");
 
         contextMenu.getItems().clear();
-        contextMenu.getItems().add(itemDeleteCliente);
+        contextMenu.getItems().addAll(itemDeleteCliente, itemSanciones);
 
         itemDeleteCliente.setOnAction(e -> deleteCliente());
+
+        itemSanciones.setOnAction(e -> {
+            try {
+                showSanciones(e);
+            } catch (IOException ex) {
+                AlertWindow alertWindow = new AlertWindow();
+                alertWindow.generateError("Error", "Ocurrió un problema al obtener las sanciones", null);
+            }
+        });
 
         setContextMenuPerRow();
     }
@@ -281,6 +293,34 @@ public class ClientesControllers {
             textFieldSearch.setPromptText("Ingresa la búsqueda");
             textFieldSearch.setTextFormatter(new TextFormatter<>(change -> change));
         }
+    }
+
+    private void showSanciones(ActionEvent event) throws IOException {
+        // Validar selección del cliente
+        ClienteListDTO selected = tableClientes.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Seleccione un cliente primero.");
+            alert.show();
+            return;
+        }
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/tabs/clientes/sancionesCliente.fxml"));
+        Parent parent = fxmlLoader.load();
+
+        // obtener nombre del cliente
+        SancionesClienteController controller = fxmlLoader.getController();
+        controller.setCliente(selected);
+
+        Stage newStage = new Stage();
+        newStage.setTitle("Sanciones del cliente");
+        newStage.setScene(new Scene(parent));
+        newStage.initModality(Modality.WINDOW_MODAL);
+
+        MenuItem menuItem = (MenuItem) event.getSource();
+        Window window = menuItem.getParentPopup().getOwnerWindow();
+
+        newStage.initOwner(window);
+        newStage.showAndWait();
     }
 
     private void setValues() {
