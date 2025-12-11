@@ -1,5 +1,7 @@
 package org.victornieto.gestionbiblioteca.model;
 
+import java.time.LocalDate;
+
 public class ClienteModel {
 
     private final Long id;
@@ -10,10 +12,11 @@ public class ClienteModel {
     private final String apellidoM;
     private final String correo;
     private final Integer activo;
+    private final LocalDate fechaCreacion;
 
     private ClienteModel(Long id, String username, String passw,
                          String nombre, String apellidoP, String apellidoM,
-                         String correo, Integer activo) {
+                         String correo, Integer activo, LocalDate fechaCreacion) {
         this.id = id;
         this.username = username;
         this.passw = passw;
@@ -22,6 +25,7 @@ public class ClienteModel {
         this.apellidoM = apellidoM;
         this.correo = correo;
         this.activo = activo;
+        this.fechaCreacion = fechaCreacion;
     }
 
     public Long getId() {
@@ -54,6 +58,10 @@ public class ClienteModel {
 
     public Integer getActivo() {
         return activo;
+    }
+
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
     }
 
     // ===== BUILDER =====
@@ -91,7 +99,11 @@ public class ClienteModel {
     }
 
     public interface ActivoStep {
-        BuildStep activo(Integer activo);
+        FechaStep activo(Integer activo);
+    }
+
+    public interface FechaStep{
+        BuildStep fechaCreacion(LocalDate fechaCreacion);
     }
 
     public interface BuildStep {
@@ -101,7 +113,7 @@ public class ClienteModel {
     private static class Builder implements
             IdStep, UsernameStep, PasswStep, NombreStep,
             ApellidoPStep, ApellidoMStep, CorreoStep,
-            ActivoStep, BuildStep {
+            ActivoStep, FechaStep, BuildStep {
 
         private Long id;
         private String username;
@@ -111,6 +123,7 @@ public class ClienteModel {
         private String apellidoM;
         private String correo;
         private Integer activo;
+        private LocalDate fechaCreacion;
 
         @Override
         public UsernameStep id(Long id) {
@@ -155,14 +168,20 @@ public class ClienteModel {
         }
 
         @Override
-        public BuildStep activo(Integer activo) {
+        public FechaStep activo(Integer activo) {
             this.activo = activo;
             return this;
         }
 
         @Override
+        public BuildStep fechaCreacion(LocalDate fechaCreacion) {
+            this.fechaCreacion = fechaCreacion;
+            return this;
+        }
+
+        @Override
         public ClienteModel build() {
-            return new ClienteModel(id, username, passw, nombre, apellidoP, apellidoM, correo, activo);
+            return new ClienteModel(id, username, passw, nombre, apellidoP, apellidoM, correo, activo, fechaCreacion);
         }
     }
 

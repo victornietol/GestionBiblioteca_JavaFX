@@ -62,9 +62,9 @@ public class ClienteService {
                     new ClienteFormDTO(
                             clienteDTO.username(),
                             passwordEncrypt.generateHash(clienteDTO.password1()),
-                            clienteDTO.nombre().toLowerCase(),
-                            clienteDTO.apellidoP().toLowerCase(),
-                            clienteDTO.apellidoM().toLowerCase(),
+                            clienteDTO.nombre().substring(0,1).toUpperCase()+clienteDTO.nombre().substring(1),
+                            clienteDTO.apellidoP().substring(0,1).toUpperCase()+clienteDTO.apellidoP().substring(1),
+                            clienteDTO.apellidoM().substring(0,1).toUpperCase()+clienteDTO.apellidoM().substring(1),
                             clienteDTO.correo()
                     )
             );

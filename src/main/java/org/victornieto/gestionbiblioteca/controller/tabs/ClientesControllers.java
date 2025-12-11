@@ -26,6 +26,7 @@ import org.victornieto.gestionbiblioteca.utility.ClientesViewTitlesMenuBtn;
 import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ClientesControllers {
@@ -45,6 +46,7 @@ public class ClientesControllers {
     @FXML public TableColumn<ClienteListDTO, String> columnCorreo;
     @FXML public TableColumn<ClienteListDTO, Integer> columnPrestamos;
     @FXML public TableColumn<ClienteListDTO, Integer> columnSanciones;
+    @FXML public TableColumn<ClienteListDTO, LocalDate> columnFechaCreacion;
 
     @FXML public Label labelBuscando;
     @FXML public ProgressBar progressBarLoad;
@@ -289,6 +291,47 @@ public class ClientesControllers {
                 return null;
             }));
 
+        } else if (menuBtnCriterio.getText().equals(ClientesViewTitlesMenuBtn.FECHA_CREACION)) { // Fechas
+            textFieldSearch.setText(""); // limpiar campo
+            textFieldSearch.setPromptText("AAAA-MM-DD");
+
+            textFieldSearch.setTextFormatter(new TextFormatter<>(change -> {
+                String newValue = change.getControlNewText();
+
+                // Permitir vacío
+                if (newValue.isEmpty()) {
+                    return change;
+                }
+
+                // Permitir dígitos y guiones mientras se escribe
+                if (!newValue.matches("[0-9-]*")) {
+                    return null;
+                }
+
+                // Limitar longitud máxima 10
+                if (newValue.length() > 10) {
+                    return null;
+                }
+
+                // Si todavía no tiene el largo completo de fecha, y verificar que se introduzcan guiones para el formato
+                if (newValue.length() < 10) {
+                    if(newValue.length()==5 && newValue.charAt(4)!='-') {
+                        return null;
+                    }
+                    if(newValue.length()==8 && newValue.charAt(7)!='-') {
+                        return null;
+                    }
+                    return change;
+                }
+
+                // Si ya tiene exactamente 10 caracteres, validar formato yyyy-MM-dd
+                if (!newValue.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    return null;
+                }
+
+                return change;
+            }));
+
         } else {
             textFieldSearch.setPromptText("Ingresa la búsqueda");
             textFieldSearch.setTextFormatter(new TextFormatter<>(change -> change));
@@ -352,5 +395,6 @@ public class ClientesControllers {
         columnCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
         columnPrestamos.setCellValueFactory(new PropertyValueFactory<>("prestamos"));
         columnSanciones.setCellValueFactory(new PropertyValueFactory<>("sanciones"));
+        columnFechaCreacion.setCellValueFactory(new PropertyValueFactory<>("fechaCreacion"));
     }
 }

@@ -1,12 +1,15 @@
 package org.victornieto.gestionbiblioteca.dto;
 
+import java.time.LocalDate;
+
 public record ClienteListDTO(
         Long id,
         String username,
         String nombre,
         String correo,
         Integer prestamos,
-        Integer sanciones
+        Integer sanciones,
+        LocalDate fechaCreacion
 ) {
 
     public Long getId() {
@@ -31,5 +34,9 @@ public record ClienteListDTO(
 
     public Integer getSanciones() {
         return sanciones;
+    }
+
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
     }
 }

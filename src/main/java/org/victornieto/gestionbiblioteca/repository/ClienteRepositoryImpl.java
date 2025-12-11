@@ -7,11 +7,13 @@ import org.victornieto.gestionbiblioteca.model.ClienteModel;
 import org.victornieto.gestionbiblioteca.utility.ClientesViewTitlesMenuBtn;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 
 public class ClienteRepositoryImpl implements ClienteRepository{
 
     private final Set<String> numericColumns = Set.of("prestamos", "sanciones");
+    private final String dateColumn = "cli.fecha_creacion";
     private final HashMap<String, String> columnsValueConverts = new HashMap<>();
 
     public ClienteRepositoryImpl() {
@@ -80,6 +82,10 @@ public class ClienteRepositoryImpl implements ClienteRepository{
                     // si es numerico
                     stmt.setInt(1, Integer.parseInt(coincidenceToSearch));
 
+                } else if (columnToSearch.equals(dateColumn)) {
+                    // si es fecha
+                    stmt.setDate(1, java.sql.Date.valueOf(coincidenceToSearch));
+
                 } else {
                     stmt.setString(1, coincidenceToSearch);
                 }
@@ -97,7 +103,7 @@ public class ClienteRepositoryImpl implements ClienteRepository{
 
     @Override
     public Optional<ClienteModel> save(ClienteFormDTO clienteFormDTO) throws SQLException {
-        String query = "INSERT INTO cliente (username, passw, nombre, apellido_p, apellido_m, correo, activo) VALUES (?,?,?,?,?,?,1)";
+        String query = "INSERT INTO cliente (username, passw, nombre, apellido_p, apellido_m, correo, activo, fecha_creacion) VALUES (?,?,?,?,?,?,1,?)";
 
         try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -108,6 +114,7 @@ public class ClienteRepositoryImpl implements ClienteRepository{
             stmt.setString(4, clienteFormDTO.apellidoP());
             stmt.setString(5, clienteFormDTO.apellidoM());
             stmt.setString(6, clienteFormDTO.correo());
+            stmt.setDate(7, java.sql.Date.valueOf(LocalDate.now()));
 
             int result = stmt.executeUpdate();
 
@@ -155,13 +162,15 @@ public class ClienteRepositoryImpl implements ClienteRepository{
                     cli.nombre AS nombre,
                     cli.correo AS correo,
                     COALESCE(pre.prestamos, 0) AS prestamos,
-                	COALESCE(san.sanciones, 0) AS sanciones
+                	COALESCE(san.sanciones, 0) AS sanciones,
+                    cli.fecha_creacion AS fecha_creacion
                 FROM (
                 	SELECT
                 		c.id AS id,
                 		c.username AS username,
                 		TRIM(CONCAT(c.nombre, ' ', c.apellido_p, ' ', COALESCE(c.apellido_m, ''))) AS nombre,
-                		c.correo AS correo
+                		c.correo AS correo,
+                        c.fecha_creacion AS fecha_creacion
                 	FROM cliente c
                 	WHERE c.activo = 1
                 ) AS cli
@@ -211,7 +220,8 @@ public class ClienteRepositoryImpl implements ClienteRepository{
                             resultSet.getString("nombre"),
                             resultSet.getString("correo"),
                             resultSet.getInt("prestamos"),
-                            resultSet.getInt("sanciones")
+                            resultSet.getInt("sanciones"),
+                            resultSet.getDate("fecha_creacion").toLocalDate()
                     )
             );
         }
@@ -230,10 +240,11 @@ public class ClienteRepositoryImpl implements ClienteRepository{
                         .apellidoM(resultSet.getString("apellido_m"))
                         .correo(resultSet.getString("correo"))
                         .activo(resultSet.getInt("activo"))
+                        .fechaCreacion(resultSet.getDate("fecha_creacion").toLocalDate())
                         .build();
             }
         } catch (SQLException e) {
-            throw new SQLException("Ocurrio un error al transformar resultSet a Model");
+            throw new SQLException("Ocurrió un error al transformar resultSet a Model");
         }
 
         return null;
@@ -246,5 +257,7 @@ public class ClienteRepositoryImpl implements ClienteRepository{
         columnsValueConverts.put(ClientesViewTitlesMenuBtn.PRESTAMOS, "prestamos");
         columnsValueConverts.put(ClientesViewTitlesMenuBtn.SANCIONES, "sanciones");
         columnsValueConverts.put(ClientesViewTitlesMenuBtn.TODOS, "todos");
+        columnsValueConverts.put(ClientesViewTitlesMenuBtn.FECHA_CREACION, "cli.fecha_creacion");
+
     }
 }
