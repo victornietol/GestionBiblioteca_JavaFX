@@ -22,4 +22,12 @@ public class SancionService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    public Boolean delete(Long id) {
+        try {
+            return sancionRepository.delete(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }

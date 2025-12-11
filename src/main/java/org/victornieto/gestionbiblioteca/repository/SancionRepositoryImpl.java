@@ -45,7 +45,22 @@ public class SancionRepositoryImpl implements SancionRepository{
 
     @Override
     public Boolean delete(Long id) throws SQLException {
-        return null;
+        String query = "UPDATE sanciones SET activo = 0 WHERE id = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, id);
+
+            int result = stmt.executeUpdate();
+            if (result!=0) {
+                return true;
+            } else {
+                throw new SQLException();
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Ocurrió un error al eliminar el sanción.");
+        }
     }
 
     private List<SancionListDTO> transformToDTOList(ResultSet resultSet) throws SQLException {

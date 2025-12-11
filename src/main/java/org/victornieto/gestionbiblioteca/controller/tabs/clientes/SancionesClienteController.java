@@ -11,6 +11,7 @@ import org.victornieto.gestionbiblioteca.dto.SancionListDTO;
 import org.victornieto.gestionbiblioteca.service.SancionService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SancionesClienteController {
@@ -40,7 +41,48 @@ public class SancionesClienteController {
 
     @FXML
     public void deleteCliente() {
+        btnDelete.setDisable(true);
+        AlertWindow alertWindow = new AlertWindow();
 
+        try {
+            SancionListDTO selected = tableSanciones.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                throw new NullPointerException("Ocurrió un error al seleccionar un elemento. Verifique que se encuentre seleccionada una sanción de la lista.");
+            }
+
+            boolean confirm = alertWindow.generateConfirmation(
+                    "Confirmación",
+                    "¿Estás seguro de confirmar la eliminación de la siguiente sanción?",
+                    "Detalles:\n\nID de la sanción: " + selected.getId() +
+                            "\nSanción: " + selected.getSancion()+
+                            "\nDescripción de la sanción: " + selected.getDescripcion() +
+                            "\nFecha: " + selected.getFecha() +
+                            "\nID del prestamo: " + selected.getIdPrestamo()
+            );
+
+            if (confirm) {
+                boolean returned = sancionService.delete(selected.getId());
+
+                if (returned) {
+                    alertWindow.generateInformation(
+                            "Información",
+                            "Se eliminó la sanción con éxito.",
+                            null
+                    );
+                    showSanciones();
+                } else {
+                    throw new RuntimeException("Ocurrió un error al devolver.");
+                }
+            }
+
+        } catch (NullPointerException e) {
+            alertWindow.generateError("Error", e.getMessage(), null);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            alertWindow.generateError("Error", e.getMessage(), null);
+        }
+        btnDelete.setDisable(true);
     }
 
     private void showSanciones() {
