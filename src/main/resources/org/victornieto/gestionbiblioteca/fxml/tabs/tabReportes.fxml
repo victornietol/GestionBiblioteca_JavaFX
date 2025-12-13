@@ -1,13 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:id="rootReportes" fx:controller="org.victornieto.gestionbiblioteca.controller.tabs.ReportesController">
+<AnchorPane fx:id="rootReportes" minHeight="0.0" minWidth="0.0" prefHeight="574.0" prefWidth="962.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.tabs.ReportesController">
     <children>
-        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label text="Reportes generales">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Cantidad de libros prestados hoy:" />
+                        <Pane prefHeight="200.0" prefWidth="5.0" />
+                        <Label fx:id="labelPrestamosHoy" layoutX="10.0" layoutY="10.0" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Libros prestados hoy:" />
+                     </children>
+                  </HBox>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                     <content>
+                        <TableView fx:id="tablePrestamos" maxHeight="Infinity">
+                           <columns>
+                              <TableColumn fx:id="columnId" editable="false" prefWidth="75.0" sortable="false" text="ID" />
+                              <TableColumn fx:id="columnFechaInicio" editable="false" prefWidth="75.0" sortable="false" text="Fecha inicio" />
+                              <TableColumn fx:id="columnFechaEntrega" editable="false" prefWidth="75.0" sortable="false" text="Fecha entrega" />
+                              <TableColumn fx:id="columnIdEjem" editable="false" prefWidth="75.0" sortable="false" text="ID_Ejemplar" />
+                              <TableColumn fx:id="columnTitulo" editable="false" prefWidth="75.0" sortable="false" text="Titulo" />
+                              <TableColumn fx:id="columnAutor" editable="false" prefWidth="75.0" sortable="false" text="Autor" />
+                              <TableColumn fx:id="columnCliente" editable="false" prefWidth="75.0" sortable="false" text="Cliente" />
+                              <TableColumn fx:id="columnAtendio" editable="false" prefWidth="75.0" sortable="false" text="Atendió" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
+               <children>
+                  <Label text="Cantidad de libros en prestamo actualmente:" />
+                  <Pane prefHeight="200.0" prefWidth="5.0" />
+                  <Label fx:id="labelPrestamosActuales" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="240.0" prefHeight="40.0" prefWidth="200.0">
+               <children>
+                  <Label text="Cantidad de libros devueltos hoy:" />
+                  <Pane prefHeight="200.0" prefWidth="5.0" />
+                  <Label fx:id="labelDevoluciones" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="240.0" prefHeight="40.0" prefWidth="200.0">
+               <children>
+                  <Label text="Nuevos usuarios generados hoy:" />
+                  <Pane prefHeight="200.0" prefWidth="5.0" />
+                  <Label fx:id="labelNuevosUsuarios" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="280.0" prefHeight="40.0" prefWidth="200.0">
+               <children>
+                  <Label text="Cantidad de usuarios actuales:" />
+                  <Pane prefHeight="200.0" prefWidth="5.0" />
+                  <Label fx:id="labelUsuariosActuales" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="320.0" prefHeight="40.0" prefWidth="200.0">
+               <children>
+                  <Label text="Cantidad de sanciones activas actualmente:" />
+                  <Pane prefHeight="200.0" prefWidth="5.0" />
+                  <Label fx:id="labelSanciones" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
+         </padding></VBox>
     </children>
 </AnchorPane>

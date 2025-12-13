@@ -135,12 +135,13 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
 
     @Override
     public Boolean returnPrestamo(Long idPrestamo) throws SQLException {
-        String query = "UPDATE prestamo SET activo = 0 WHERE id = ?";
+        String query = "UPDATE prestamo SET activo = 0, fecha_fin = ? WHERE id = ?";
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setLong(1, idPrestamo);
+            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now())); // fecha actual
+            stmt.setLong(2, idPrestamo);
 
             int result = stmt.executeUpdate();
             if (result!=0) {
