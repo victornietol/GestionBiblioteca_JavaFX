@@ -44,14 +44,29 @@ public class ReportesController {
     @FXML public TableColumn<PrestamoListDTO, String> columnCliente;
     @FXML public TableColumn<PrestamoListDTO, String> columnAtendio;
 
+    @FXML public TableView<PrestamoListDTO> tablePrestamos1;
+    @FXML public TableColumn<PrestamoListDTO, Long> columnId1;
+    @FXML public TableColumn<PrestamoListDTO, LocalDate> columnFechaInicio1;
+    @FXML public TableColumn<PrestamoListDTO, LocalDate> columnFechaEntrega1;
+    @FXML public TableColumn<PrestamoListDTO, Long> columnIdEjem1;
+    @FXML public TableColumn<PrestamoListDTO, String> columnTitulo1;
+    @FXML public TableColumn<PrestamoListDTO, String> columnAutor1;
+    @FXML public TableColumn<PrestamoListDTO, String> columnCliente1;
+    @FXML public TableColumn<PrestamoListDTO, String> columnAtendio1;
+
     private PrestamoService prestamoService;
     private ClienteService clienteService;
     private SancionService sancionService;
+
     private String columnToSearch;
     private String coincidenceToSearch;
     private String orderByColumn;
     private boolean orderDesc;
     private List<PrestamoListDTO> prestamosList;
+    private String columnToSearch1;
+    private String coincidenceToSearch1;
+    private String orderByColumn1;
+    private List<PrestamoListDTO> prestamosReturnedList;
 
 
     @FXML
@@ -72,18 +87,18 @@ public class ReportesController {
         setValues();
         progressBarLoad.setProgress(0.20);
 
-        final Integer[] amountPrestamos = new Integer[5]; // 0: prestamosActuales, 1: prestamosDevueltosHoy, 2: nuevosClientesHoy, 3: clientesActivos, 4: sancionesActivas
+        final Integer[] amountPrestamos = new Integer[4]; // 0: prestamosActuales, 1: nuevosClientesHoy, 2: clientesActivos, 3: sancionesActivas
 
         // Task para operaciones con BD
         Task<Void> getPrestamosTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 prestamosList = generatePrestamosList();
+                prestamosReturnedList = generatePrestamosReturnedList();
                 amountPrestamos[0] = prestamoService.getNumberActivePrestamos();
-                amountPrestamos[1] = prestamoService.getNumberReturnedPrestamosToday();
-                amountPrestamos[2] = clienteService.getNewClientesToday();
-                amountPrestamos[3] = clienteService.getActiveClientes();
-                amountPrestamos[4] = sancionService.getActiveAmount();
+                amountPrestamos[1] = clienteService.getNewClientesToday();
+                amountPrestamos[2] = clienteService.getActiveClientes();
+                amountPrestamos[3] = sancionService.getActiveAmount();
                 progressBarLoad.setProgress(0.50);
                 return null;
             }
@@ -97,15 +112,17 @@ public class ReportesController {
             } else {
                 progressBarLoad.setProgress(0.70);
                 ObservableList<PrestamoListDTO> data = FXCollections.observableArrayList(prestamosList);
-                tablePrestamos.setItems(data);
+                ObservableList<PrestamoListDTO> data1 = FXCollections.observableArrayList(prestamosReturnedList);
+                tablePrestamos.setItems(data); // Prestamos iniciados hoy
+                tablePrestamos1.setItems(data1); // Prestamos devueltos hoy
                 labelPrestamosActuales.setText(amountPrestamos[0].toString());
-                labelDevoluciones.setText(amountPrestamos[1].toString());
-                labelNuevosUsuarios.setText(amountPrestamos[2].toString());
-                labelUsuariosActuales.setText(amountPrestamos[3].toString());
-                labelSanciones.setText(amountPrestamos[4].toString());
+                labelNuevosUsuarios.setText(amountPrestamos[1].toString());
+                labelUsuariosActuales.setText(amountPrestamos[2].toString());
+                labelSanciones.setText(amountPrestamos[3].toString());
             }
 
             labelPrestamosHoy.setText(String.valueOf(prestamosList.size()));
+            labelDevoluciones.setText(String.valueOf(prestamosReturnedList.size()));
             progressBarLoad.setProgress(1.0);
             progressBarLoad.setVisible(false);
             labelBuscando.setVisible(false);
@@ -133,12 +150,24 @@ public class ReportesController {
 
     private List<PrestamoListDTO> generatePrestamosList() {
         try {
-            return prestamoService.getPrestamosList(
+            return prestamoService.getAllPrestamosToday(
                     columnToSearch, coincidenceToSearch, orderByColumn, orderDesc
             );
 
         } catch (Exception e) {
             System.out.println("Ocurrió un error al ejecutar la tarea para recuperar los prestamos.");
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private List<PrestamoListDTO> generatePrestamosReturnedList() {
+        try {
+            return prestamoService.getReturnedPrestamosToday(
+                    columnToSearch1, coincidenceToSearch1, orderByColumn1, orderDesc
+            );
+
+        } catch (Exception e) {
+            System.out.println("Ocurrió un error al ejecutar la tarea para recuperar los prestamos devueltos.");
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -159,6 +188,15 @@ public class ReportesController {
 
         // Ordenamiento ascendente o desc
         orderDesc = false;
+
+        // Columna en la que se busca coincidencia
+        columnToSearch1 = PrestamosViewTitlesMenuBtn.FECHA_ENTREGA;
+
+        // Texto a buscar
+        coincidenceToSearch1 = LocalDate.now().toString();
+
+        // Ordenamiento por columna
+        orderByColumn1 = PrestamosViewTitlesMenuBtn.FECHA_ENTREGA;
     }
 
     private void setColumns() {
@@ -171,6 +209,15 @@ public class ReportesController {
         columnAutor.setCellValueFactory(new PropertyValueFactory<>("autor"));
         columnCliente.setCellValueFactory(new PropertyValueFactory<>("cliente"));
         columnAtendio.setCellValueFactory(new PropertyValueFactory<>("usuario"));
+
+        columnId1.setCellValueFactory(new PropertyValueFactory<>("idPrestamo"));
+        columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        columnFechaEntrega1.setCellValueFactory(new PropertyValueFactory<>("fechaEntrega"));
+        columnIdEjem1.setCellValueFactory(new PropertyValueFactory<>("idEjemplar"));
+        columnTitulo1.setCellValueFactory(new PropertyValueFactory<>("titulo"));
+        columnAutor1.setCellValueFactory(new PropertyValueFactory<>("autor"));
+        columnCliente1.setCellValueFactory(new PropertyValueFactory<>("cliente"));
+        columnAtendio1.setCellValueFactory(new PropertyValueFactory<>("usuario"));
     }
 
     public void refreshData() {

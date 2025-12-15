@@ -49,12 +49,44 @@ public class PrestamoService {
         }
     }
 
-    public Integer getNumberReturnedPrestamosToday() {
+    public List<PrestamoListDTO> getReturnedPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws RuntimeException {
+        /**
+         * @return una lista con los resultados de la búsqueda en la base de datos, en caso de no encontrar resultados se regresa una lista vacía.
+         */
+        List<PrestamoListDTO> prestamos;
+
+        if (coincidenceToSearch==null || coincidenceToSearch.isEmpty()) {
+            columnToSearch = "Todos";
+        }
+
         try {
-           return prestamoRepository.getNumberReturnedPrestamosToday();
+            prestamos = prestamoRepository.getReturnedPrestamosToday(columnToSearch, coincidenceToSearch, orderByColumn, orderDes);
+
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
+
+        return prestamos;
+    }
+
+    public List<PrestamoListDTO> getAllPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws RuntimeException {
+        /**
+         * @return una lista con los resultados de la búsqueda en la base de datos, en caso de no encontrar resultados se regresa una lista vacía.
+         */
+        List<PrestamoListDTO> prestamos;
+
+        if (coincidenceToSearch==null || coincidenceToSearch.isEmpty()) {
+            columnToSearch = "Todos";
+        }
+
+        try {
+            prestamos = prestamoRepository.getAllPrestamosToday(columnToSearch, coincidenceToSearch, orderByColumn, orderDes);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return prestamos;
     }
 
     public Optional<PrestamoModel> createPrestamo(PrestamoDTO prestamoDTO) {

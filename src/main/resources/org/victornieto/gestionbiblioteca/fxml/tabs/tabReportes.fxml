@@ -28,7 +28,8 @@
                         <Label text="Cantidad de libros prestados hoy:">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
+                           </font>
+                        </Label>
                         <Pane prefHeight="200.0" prefWidth="5.0" />
                         <Label fx:id="labelPrestamosHoy" layoutX="10.0" layoutY="10.0" />
                      </children>
@@ -36,12 +37,13 @@
                         <Insets />
                      </VBox.margin>
                   </HBox>
-                  <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
                      <children>
-                        <Label text="Libros prestados hoy:">
+                        <Label text="Prestamos realizados hoy">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
+                           </font>
+                        </Label>
                      </children>
                   </HBox>
                   <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
@@ -63,13 +65,6 @@
                         </TableView>
                      </content>
                   </ScrollPane>
-                  <HBox alignment="CENTER_LEFT" prefHeight="20.0" prefWidth="200.0">
-                     <children>
-                        <Label fx:id="labelBuscando" text="Cargando" visible="false" />
-                        <Pane layoutX="210.0" layoutY="10.0" maxWidth="5.0" prefHeight="200.0" prefWidth="200.0" />
-                        <ProgressBar fx:id="progressBarLoad" maxHeight="-Infinity" prefWidth="200.0" progress="0.0" visible="false" />
-                     </children>
-                  </HBox>
                </children>
             </VBox>
             <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
@@ -77,27 +72,62 @@
                   <Label text="Cantidad de libros en prestamo actualmente:">
                      <font>
                         <Font name="System Bold" size="12.0" />
-                     </font></Label>
+                     </font>
+                  </Label>
                   <Pane prefHeight="200.0" prefWidth="5.0" />
                   <Label fx:id="labelPrestamosActuales" />
                </children>
             </HBox>
-            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="240.0" prefHeight="40.0" prefWidth="200.0">
+            <VBox layoutX="50.0" layoutY="60.0" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label text="Cantidad de libros devueltos hoy:">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font></Label>
-                  <Pane prefHeight="200.0" prefWidth="5.0" />
-                  <Label fx:id="labelDevoluciones" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Cantidad de libros devueltos hoy:">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Pane prefHeight="200.0" prefWidth="5.0" />
+                        <Label fx:id="labelDevoluciones" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Prestamos devueltos hoy">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                     <content>
+                        <TableView fx:id="tablePrestamos1" maxHeight="Infinity">
+                           <columns>
+                              <TableColumn fx:id="columnId1" editable="false" prefWidth="75.0" sortable="false" text="ID" />
+                              <TableColumn fx:id="columnFechaInicio1" editable="false" prefWidth="75.0" sortable="false" text="Fecha inicio" />
+                              <TableColumn fx:id="columnFechaEntrega1" editable="false" prefWidth="75.0" sortable="false" text="Fecha entrega" />
+                              <TableColumn fx:id="columnIdEjem1" editable="false" prefWidth="75.0" sortable="false" text="ID_Ejemplar" />
+                              <TableColumn fx:id="columnTitulo1" editable="false" prefWidth="75.0" sortable="false" text="Titulo" />
+                              <TableColumn fx:id="columnAutor1" editable="false" prefWidth="75.0" sortable="false" text="Autor" />
+                              <TableColumn fx:id="columnCliente1" editable="false" prefWidth="75.0" sortable="false" text="Cliente" />
+                              <TableColumn fx:id="columnAtendio1" editable="false" prefWidth="75.0" sortable="false" text="Atendió" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </content>
+                  </ScrollPane>
                </children>
-            </HBox>
+            </VBox>
             <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="240.0" prefHeight="40.0" prefWidth="200.0">
                <children>
                   <Label text="Cantidad de nuevos clientes generados hoy:">
                      <font>
                         <Font name="System Bold" size="12.0" />
-                     </font></Label>
+                     </font>
+                  </Label>
                   <Pane prefHeight="200.0" prefWidth="5.0" />
                   <Label fx:id="labelNuevosUsuarios" />
                </children>
@@ -107,7 +137,8 @@
                   <Label text="Cantidad de clientes actuales:">
                      <font>
                         <Font name="System Bold" size="12.0" />
-                     </font></Label>
+                     </font>
+                  </Label>
                   <Pane prefHeight="200.0" prefWidth="5.0" />
                   <Label fx:id="labelUsuariosActuales" />
                </children>
@@ -117,14 +148,26 @@
                   <Label text="Cantidad de sanciones activas actualmente:">
                      <font>
                         <Font name="System Bold" size="12.0" />
-                     </font></Label>
+                     </font>
+                  </Label>
                   <Pane prefHeight="200.0" prefWidth="5.0" />
                   <Label fx:id="labelSanciones" />
                </children>
             </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="20.0" prefWidth="200.0">
+               <children>
+                  <Label fx:id="labelBuscando" text="Cargando" visible="false" />
+                  <Pane layoutX="210.0" layoutY="10.0" maxWidth="5.0" prefHeight="200.0" prefWidth="200.0" />
+                  <ProgressBar fx:id="progressBarLoad" maxHeight="-Infinity" prefWidth="200.0" progress="0.0" visible="false" />
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </HBox>
          </children>
          <padding>
-            <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
-         </padding></VBox>
+            <Insets bottom="10.0" left="40.0" right="40.0" top="20.0" />
+         </padding>
+      </VBox>
     </children>
 </AnchorPane>

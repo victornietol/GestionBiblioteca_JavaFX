@@ -35,7 +35,7 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
         columnToSearch = columnsValueConverts.get(columnToSearch);
         orderByColumn = columnsValueConverts.get(orderByColumn);
 
-        String query = createQuery(columnToSearch, coincidenceToSearch, orderByColumn, orderDes);
+        String query = createQuery(columnToSearch, coincidenceToSearch, orderByColumn, orderDes, false);
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -153,23 +153,92 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
     }
 
     @Override
-    public Integer getNumberReturnedPrestamosToday() throws SQLException {
-        String query = "SELECT count(*) returned FROM prestamo WHERE fecha_fin = ? AND activo = 0";
+    public List<PrestamoListDTO> getReturnedPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException {
+        /**
+         * Devuelve la información necesaria para mostrar la tabla de la pestaña Préstamos
+         * @param columnToSearch un string con la columna a buscar, en caso de ingresar "todos" no se aplica clausula where
+         * @param coincidenceToSearch un string con la palabra para buscar una coincidencia
+         * @param orderByColumn un string para order el resultado según la columna indicada
+         * @param orderDesc un boolean para indicar si el orden es descendente o ascendente
+         */
+
+        List<PrestamoListDTO> list;
+
+        columnToSearch = columnsValueConverts.get(columnToSearch);
+        orderByColumn = columnsValueConverts.get(orderByColumn);
+
+        String query = createQueryReturned(columnToSearch, coincidenceToSearch, orderByColumn, orderDes);
 
         try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+            if(!columnToSearch.equals("todos")) {
+                // Se aplica WHERE
+                if (numericColums.contains(columnToSearch)) {
+                    // si es numerico
+                    stmt.setInt(1, Integer.parseInt(coincidenceToSearch));
+
+                } else if (dateColumns.contains(columnToSearch)) {
+                    // si es fecha
+                    stmt.setDate(1, java.sql.Date.valueOf(coincidenceToSearch));
+
+                } else {
+                    stmt.setString(1, coincidenceToSearch);
+                }
+            }
 
             ResultSet resultSet = stmt.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getInt("returned");
-            }
-            return 0; // Error en la consulta si no devuelve nada
+            list = transformResultToList(resultSet);
+            return list;
 
         } catch (SQLException e) {
-            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
-            throw new SQLException("Error al obtener la cantidad de prestamos devueltos hoy.");
+            System.out.println("Error al ejecutar la consulta getReturnedPrestamosList en PrestamoRepositoryImpl: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener los prestamos devueltos hoy.");
+        }
+    }
+
+    @Override
+    public List<PrestamoListDTO> getAllPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException {
+        /**
+         * Devuelve la información necesaria para mostrar la tabla de la pestaña Préstamos
+         * @param columnToSearch un string con la columna a buscar, en caso de ingresar "todos" no se aplica clausula where
+         * @param coincidenceToSearch un string con la palabra para buscar una coincidencia
+         * @param orderByColumn un string para order el resultado según la columna indicada
+         * @param orderDesc un boolean para indicar si el orden es descendente o ascendente
+         */
+
+        List<PrestamoListDTO> list;
+
+        columnToSearch = columnsValueConverts.get(columnToSearch);
+        orderByColumn = columnsValueConverts.get(orderByColumn);
+
+        String query = createQuery(columnToSearch, coincidenceToSearch, orderByColumn, orderDes, true);
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            if(!columnToSearch.equals("todos")) {
+                // Se aplica WHERE
+                if (numericColums.contains(columnToSearch)) {
+                    // si es numerico
+                    stmt.setInt(1, Integer.parseInt(coincidenceToSearch));
+
+                } else if (dateColumns.contains(columnToSearch)) {
+                    // si es fecha
+                    stmt.setDate(1, java.sql.Date.valueOf(coincidenceToSearch));
+
+                } else {
+                    stmt.setString(1, coincidenceToSearch);
+                }
+            }
+
+            ResultSet resultSet = stmt.executeQuery();
+            list = transformResultToList(resultSet);
+            return list;
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta getReturnedPrestamosList en PrestamoRepositoryImpl: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener los prestamos devueltos hoy.");
         }
     }
 
@@ -198,8 +267,8 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
 
 
 
-    private String createQuery(String columnToSearch, String coincidenceToSeach, String orderByColumn, boolean orderDesc) {
-        String query = """
+    private String createQuery(String columnToSearch, String coincidenceToSeach, String orderByColumn, boolean orderDesc, boolean all) {
+        String queryActive = """
                 SELECT
                 	pre.id_prestamo AS id_prestamo,
                 	pre.fecha_inicio AS fecha_inicio,
@@ -221,6 +290,113 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
                 	JOIN cliente c ON (p.fk_cliente = c.id)
                 	JOIN usuario u ON (p.fk_usuario = u.id)
                 	WHERE p.activo = 1
+                ) pre
+                JOIN (
+                	SELECT
+                		ej.id AS id_ejemplar,
+                		l.id AS id_libro,
+                		l.titulo AS titulo
+                	FROM libro l
+                	JOIN ejemplar_libro ej ON (l.id = ej.id_libro)
+                ) ejem ON (pre.id_ejemplar = ejem.id_ejemplar)
+                JOIN (
+                	SELECT
+                		l.id AS id_libro,
+                		GROUP_CONCAT(TRIM(CONCAT(a.nombre, ' ', a.apellido_p, ' ', COALESCE(a.apellido_m, ''))) SEPARATOR ', ') AS autor
+                	FROM libro_autor l_a
+                	JOIN autor a ON (l_a.id_autor = a.id)
+                	JOIN libro l ON (l.id = l_a.id_libro)
+                	GROUP BY l.id
+                ) aut ON (ejem.id_libro = aut.id_libro)
+                """;
+
+        String queryAll = """
+                SELECT
+                	pre.id_prestamo AS id_prestamo,
+                	pre.fecha_inicio AS fecha_inicio,
+                    pre.fecha_entrega AS fecha_entrega,
+                	pre.id_ejemplar AS id_ejemplar,
+                    ejem.titulo AS titulo,
+                    aut.autor AS autor,
+                	pre.cliente AS cliente,
+                	pre.usuario AS usuario
+                FROM (
+                	SELECT
+                		p.id AS id_prestamo,
+                		DATE(p.fecha_inicio) AS fecha_inicio,
+                		DATE(p.fecha_fin) AS fecha_entrega,
+                		p.id_ejemplar AS id_ejemplar,
+                		TRIM(CONCAT(c.nombre, ' ', c.apellido_p, ' ', COALESCE(c.apellido_m, ''))) AS cliente,
+                		TRIM(CONCAT(u.nombre, ' ', u.apellido_p, ' ', COALESCE(u.apellido_m, ''))) AS usuario
+                	FROM prestamo p
+                	JOIN cliente c ON (p.fk_cliente = c.id)
+                	JOIN usuario u ON (p.fk_usuario = u.id)
+                ) pre
+                JOIN (
+                	SELECT
+                		ej.id AS id_ejemplar,
+                		l.id AS id_libro,
+                		l.titulo AS titulo
+                	FROM libro l
+                	JOIN ejemplar_libro ej ON (l.id = ej.id_libro)
+                ) ejem ON (pre.id_ejemplar = ejem.id_ejemplar)
+                JOIN (
+                	SELECT
+                		l.id AS id_libro,
+                		GROUP_CONCAT(TRIM(CONCAT(a.nombre, ' ', a.apellido_p, ' ', COALESCE(a.apellido_m, ''))) SEPARATOR ', ') AS autor
+                	FROM libro_autor l_a
+                	JOIN autor a ON (l_a.id_autor = a.id)
+                	JOIN libro l ON (l.id = l_a.id_libro)
+                	GROUP BY l.id
+                ) aut ON (ejem.id_libro = aut.id_libro)
+                """;
+
+
+        String query = all ? queryAll : queryActive;
+
+
+        String orderBy = "ORDER BY " + orderByColumn + " " + (orderDesc ? "DESC" : "ASC");
+
+        if (columnToSearch.equals("todos")) {
+            query += orderBy;
+
+        } else {
+            // implementar WHERE
+            String where;
+            if (numericColums.contains(columnToSearch)) {
+                where = " WHERE " + columnToSearch + " = ? "; // campo numerico
+            } else {
+                where = " WHERE " + columnToSearch + " LIKE CONCAT('%', ? , '%') "; // campo no numerico
+            }
+            query = query + where + orderBy;
+        }
+
+        return query;
+    }
+
+    private String createQueryReturned(String columnToSearch, String coincidenceToSeach, String orderByColumn, boolean orderDesc) {
+        String query = """
+                SELECT
+                	pre.id_prestamo AS id_prestamo,
+                	pre.fecha_inicio AS fecha_inicio,
+                    pre.fecha_entrega AS fecha_entrega,
+                	pre.id_ejemplar AS id_ejemplar,
+                    ejem.titulo AS titulo,
+                    aut.autor AS autor,
+                	pre.cliente AS cliente,
+                	pre.usuario AS usuario
+                FROM (
+                	SELECT
+                		p.id AS id_prestamo,
+                		DATE(p.fecha_inicio) AS fecha_inicio,
+                		DATE(p.fecha_fin) AS fecha_entrega,
+                		p.id_ejemplar AS id_ejemplar,
+                		TRIM(CONCAT(c.nombre, ' ', c.apellido_p, ' ', COALESCE(c.apellido_m, ''))) AS cliente,
+                		TRIM(CONCAT(u.nombre, ' ', u.apellido_p, ' ', COALESCE(u.apellido_m, ''))) AS usuario
+                	FROM prestamo p
+                	JOIN cliente c ON (p.fk_cliente = c.id)
+                	JOIN usuario u ON (p.fk_usuario = u.id)
+                	WHERE p.activo = 0
                 ) pre
                 JOIN (
                 	SELECT

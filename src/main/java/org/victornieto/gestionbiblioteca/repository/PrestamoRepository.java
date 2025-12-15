@@ -15,6 +15,7 @@ public interface PrestamoRepository {
     Optional<PrestamoModel> getPrestamosActiveByAllColumns(PrestamoDTO prestamoDTO) throws SQLException;
     Optional<PrestamoModel> newPrestamo(PrestamoDTO prestamo) throws SQLException;
     Integer getNumberActivePrestamos() throws SQLException;
-    Integer getNumberReturnedPrestamosToday() throws SQLException;
+    List<PrestamoListDTO> getReturnedPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException;
+    List<PrestamoListDTO> getAllPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException;
     Boolean returnPrestamo(Long idPrestamo) throws SQLException;
 }
