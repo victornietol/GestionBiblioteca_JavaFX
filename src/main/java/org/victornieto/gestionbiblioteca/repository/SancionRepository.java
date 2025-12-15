@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface SancionRepository {
     List<SancionListDTO> getByIdCliente(Long id) throws SQLException;
+    Integer getActiveAmount() throws SQLException;
     Boolean delete(Long id) throws SQLException;
 }

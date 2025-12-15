@@ -13,6 +13,7 @@ import java.util.*;
 public class ClienteRepositoryImpl implements ClienteRepository{
 
     private final Set<String> numericColumns = Set.of("prestamos", "sanciones");
+
     private final String dateColumn = "cli.fecha_creacion";
     private final HashMap<String, String> columnsValueConverts = new HashMap<>();
 
@@ -98,6 +99,47 @@ public class ClienteRepositoryImpl implements ClienteRepository{
         } catch (SQLException e) {
             System.out.println("Error al ejecutar la consulta getPrestamosList en ClienteRepositoryImpl: " + Arrays.toString(e.getStackTrace()));
             throw new SQLException("Error al obtener los clientes.");
+        }
+    }
+
+    @Override
+    public Integer getNewClientesToday() throws SQLException {
+        String query = "SELECT count(*) AS clientes FROM cliente WHERE fecha_creacion = ?";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+            ResultSet resultSet = stmt.executeQuery();
+
+            if(resultSet.next()) {
+                return resultSet.getInt("clientes");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta getNewClientesToday en ClienteRepositoryImpl: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener la cantidad de nuevos clientes de hoy.");
+        }
+    }
+
+    @Override
+    public Integer getActiveClientes() throws SQLException {
+        String query = "SELECT count(*) AS clientes FROM cliente WHERE activo = 1";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            if(resultSet.next()) {
+                return resultSet.getInt("clientes");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta getActiveClientes en ClienteRepositoryImpl: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener la cantidad de clientes activos.");
         }
     }
 

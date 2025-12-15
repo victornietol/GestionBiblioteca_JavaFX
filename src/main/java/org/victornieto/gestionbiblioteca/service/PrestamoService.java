@@ -41,6 +41,22 @@ public class PrestamoService {
         return prestamos;
     }
 
+    public Integer getNumberActivePrestamos() {
+        try {
+            return prestamoRepository.getNumberActivePrestamos();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Integer getNumberReturnedPrestamosToday() {
+        try {
+           return prestamoRepository.getNumberReturnedPrestamosToday();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Optional<PrestamoModel> createPrestamo(PrestamoDTO prestamoDTO) {
         /**
          * Crea un nuevo préstamo y desactiva el libro correspondiente de la tabla ejemplares

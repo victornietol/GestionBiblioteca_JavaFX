@@ -14,5 +14,7 @@ public interface PrestamoRepository {
     Optional<PrestamoModel> getById(Long id) throws SQLException;
     Optional<PrestamoModel> getPrestamosActiveByAllColumns(PrestamoDTO prestamoDTO) throws SQLException;
     Optional<PrestamoModel> newPrestamo(PrestamoDTO prestamo) throws SQLException;
+    Integer getNumberActivePrestamos() throws SQLException;
+    Integer getNumberReturnedPrestamosToday() throws SQLException;
     Boolean returnPrestamo(Long idPrestamo) throws SQLException;
 }

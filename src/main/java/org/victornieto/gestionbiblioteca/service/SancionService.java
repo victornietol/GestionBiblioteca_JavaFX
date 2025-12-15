@@ -23,6 +23,14 @@ public class SancionService {
         }
     }
 
+    public Integer getActiveAmount() {
+        try {
+            return sancionRepository.getActiveAmount();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Boolean delete(Long id) {
         try {
             return sancionRepository.delete(id);

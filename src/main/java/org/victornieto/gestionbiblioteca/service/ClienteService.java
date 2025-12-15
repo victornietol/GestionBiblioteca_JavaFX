@@ -52,6 +52,22 @@ public class ClienteService {
         return clientes;
     }
 
+    public Integer getNewClientesToday() {
+        try {
+            return clienteRepository.getNewClientesToday();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Integer getActiveClientes() {
+        try {
+            return clienteRepository.getActiveClientes();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Optional<ClienteModel> create(ClienteFormControllerDTO clienteDTO) {
         PasswordEncrypt passwordEncrypt = new PasswordEncryptArgon2();
 

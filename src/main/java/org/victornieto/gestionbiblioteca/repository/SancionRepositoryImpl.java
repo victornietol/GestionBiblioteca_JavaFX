@@ -44,6 +44,25 @@ public class SancionRepositoryImpl implements SancionRepository{
     }
 
     @Override
+    public Integer getActiveAmount() throws SQLException {
+        String query = "SELECT count(*) AS activ FROM sanciones WHERE activo = 1";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("activ");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener las sanciones activas.");
+        }
+    }
+
+    @Override
     public Boolean delete(Long id) throws SQLException {
         String query = "UPDATE sanciones SET activo = 0 WHERE id = ?";
 

@@ -12,6 +12,8 @@ public interface ClienteRepository {
     Optional<ClienteModel> getByUsername(String username) throws SQLException;
     Optional<String> getNombreCompletoById(Long id) throws SQLException;
     List<ClienteListDTO> getListDTOAll(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDesc) throws SQLException;
+    Integer getNewClientesToday() throws SQLException;
+    Integer getActiveClientes() throws SQLException;
     Optional<ClienteModel> save(ClienteFormDTO clienteFormDTO) throws SQLException;
     Boolean delete(Long id) throws SQLException;
 }

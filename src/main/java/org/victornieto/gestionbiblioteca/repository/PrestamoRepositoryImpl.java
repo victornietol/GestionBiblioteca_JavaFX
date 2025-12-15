@@ -134,6 +134,46 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
     }
 
     @Override
+    public Integer getNumberActivePrestamos() throws SQLException {
+        String query = "SELECT count(*) AS prestamos FROM prestamo WHERE activo = 1";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("prestamos");
+            }
+            return 0; // Error en la consulta si no devuelve nada
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener la cantidad de prestamos actuales.");
+        }
+    }
+
+    @Override
+    public Integer getNumberReturnedPrestamosToday() throws SQLException {
+        String query = "SELECT count(*) returned FROM prestamo WHERE fecha_fin = ? AND activo = 0";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("returned");
+            }
+            return 0; // Error en la consulta si no devuelve nada
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener la cantidad de prestamos devueltos hoy.");
+        }
+    }
+
+    @Override
     public Boolean returnPrestamo(Long idPrestamo) throws SQLException {
         String query = "UPDATE prestamo SET activo = 0, fecha_fin = ? WHERE id = ?";
 
