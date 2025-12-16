@@ -106,21 +106,24 @@ public class ReportesController {
 
         // Tarea ejecutada correctamente
         getPrestamosTask.setOnSucceeded(e -> {
-            if (prestamosList.isEmpty()) {
+            if (prestamosList.isEmpty()) { // Prestamos iniciados hoy
                 tablePrestamos.getItems().clear();
-
             } else {
-                progressBarLoad.setProgress(0.70);
                 ObservableList<PrestamoListDTO> data = FXCollections.observableArrayList(prestamosList);
-                ObservableList<PrestamoListDTO> data1 = FXCollections.observableArrayList(prestamosReturnedList);
-                tablePrestamos.setItems(data); // Prestamos iniciados hoy
-                tablePrestamos1.setItems(data1); // Prestamos devueltos hoy
-                labelPrestamosActuales.setText(amountPrestamos[0].toString());
-                labelNuevosUsuarios.setText(amountPrestamos[1].toString());
-                labelUsuariosActuales.setText(amountPrestamos[2].toString());
-                labelSanciones.setText(amountPrestamos[3].toString());
+                tablePrestamos.setItems(data);
             }
 
+            if (prestamosReturnedList.isEmpty()) { // Prestamos devueltos hoy
+                tablePrestamos1.getItems().clear();
+            } else {
+                ObservableList<PrestamoListDTO> data1 = FXCollections.observableArrayList(prestamosReturnedList);
+                tablePrestamos1.setItems(data1);
+            }
+
+            labelPrestamosActuales.setText(amountPrestamos[0].toString());
+            labelNuevosUsuarios.setText(amountPrestamos[1].toString());
+            labelUsuariosActuales.setText(amountPrestamos[2].toString());
+            labelSanciones.setText(amountPrestamos[3].toString());
             labelPrestamosHoy.setText(String.valueOf(prestamosList.size()));
             labelDevoluciones.setText(String.valueOf(prestamosReturnedList.size()));
             progressBarLoad.setProgress(1.0);

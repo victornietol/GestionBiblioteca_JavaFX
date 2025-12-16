@@ -16,30 +16,21 @@
     <children>
         <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label text="Reportes generales">
-               <font>
-                  <Font name="System Bold" size="20.0" />
-               </font>
-            </Label>
             <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
                      <children>
-                        <Label text="Cantidad de libros prestados hoy:">
+                        <Label text="Prestamos realizados hoy (total:">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="14.0" />
                            </font>
                         </Label>
                         <Pane prefHeight="200.0" prefWidth="5.0" />
-                        <Label fx:id="labelPrestamosHoy" layoutX="10.0" layoutY="10.0" />
-                     </children>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </HBox>
-                  <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Prestamos realizados hoy">
+                        <Label fx:id="labelPrestamosHoy">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Label>
+                        <Label text=")">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
@@ -66,34 +57,25 @@
                      </content>
                   </ScrollPane>
                </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
             </VBox>
-            <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
-               <children>
-                  <Label text="Cantidad de libros en prestamo actualmente:">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-                  <Pane prefHeight="200.0" prefWidth="5.0" />
-                  <Label fx:id="labelPrestamosActuales" />
-               </children>
-            </HBox>
             <VBox layoutX="50.0" layoutY="60.0" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
                      <children>
-                        <Label text="Cantidad de libros devueltos hoy:">
+                        <Label text="Prestamos devueltos hoy (total:">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="14.0" />
                            </font>
                         </Label>
                         <Pane prefHeight="200.0" prefWidth="5.0" />
-                        <Label fx:id="labelDevoluciones" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="200.0">
-                     <children>
-                        <Label text="Prestamos devueltos hoy">
+                        <Label fx:id="labelDevoluciones">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Label>
+                        <Label text=")">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
@@ -120,7 +102,21 @@
                      </content>
                   </ScrollPane>
                </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
             </VBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0">
+               <children>
+                  <Label text="Cantidad de libros en prestamo actualmente:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Pane prefHeight="200.0" prefWidth="5.0" />
+                  <Label fx:id="labelPrestamosActuales" />
+               </children>
+            </HBox>
             <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="240.0" prefHeight="40.0" prefWidth="200.0">
                <children>
                   <Label text="Cantidad de nuevos clientes generados hoy:">
