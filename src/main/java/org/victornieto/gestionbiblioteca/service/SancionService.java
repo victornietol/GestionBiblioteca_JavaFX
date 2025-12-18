@@ -1,6 +1,7 @@
 package org.victornieto.gestionbiblioteca.service;
 
-import org.victornieto.gestionbiblioteca.dto.SancionListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionClienteListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
 import org.victornieto.gestionbiblioteca.repository.SancionRepository;
 import org.victornieto.gestionbiblioteca.repository.SancionRepositoryImpl;
 
@@ -15,9 +16,21 @@ public class SancionService {
         this.sancionRepository = new SancionRepositoryImpl();
     }
 
-    public List<SancionListDTO> getById(Long id) {
+    public List<SancionClienteListDTO> getById(Long id) {
         try {
             return sancionRepository.getByIdCliente(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public List<SancionesListDTO> getAllList(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) {
+        if (coincidenceToSearch==null || coincidenceToSearch.isEmpty()) {
+            columnToSearch = "Todos";
+        }
+
+        try {
+            return sancionRepository.getAllList(columnToSearch, coincidenceToSearch, orderByColumn, orderDes);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }

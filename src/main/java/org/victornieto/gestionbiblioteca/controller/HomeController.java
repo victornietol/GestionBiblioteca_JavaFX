@@ -4,10 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
-import org.victornieto.gestionbiblioteca.controller.tabs.ClientesControllers;
-import org.victornieto.gestionbiblioteca.controller.tabs.InventarioController;
-import org.victornieto.gestionbiblioteca.controller.tabs.PrestamosController;
-import org.victornieto.gestionbiblioteca.controller.tabs.ReportesController;
+import org.victornieto.gestionbiblioteca.controller.tabs.*;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
 public class HomeController {
@@ -25,6 +22,9 @@ public class HomeController {
     @FXML private Tab tabReportesTab;
     @FXML private AnchorPane tabReportes;
     @FXML private ReportesController tabReportesController;
+
+    @FXML private AnchorPane tabSanciones;
+    @FXML private SancionesController tabSancionesController;
 
     private UsuarioModel userLogged;
 

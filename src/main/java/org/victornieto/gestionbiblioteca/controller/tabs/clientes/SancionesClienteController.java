@@ -7,7 +7,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionClienteListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
 import org.victornieto.gestionbiblioteca.service.SancionService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 
@@ -17,12 +18,12 @@ import java.util.List;
 public class SancionesClienteController {
     @FXML public Button btnDelete;
 
-    @FXML public TableView<SancionListDTO> tableSanciones;
-    @FXML public TableColumn<SancionListDTO, Long> columnId;
-    @FXML public TableColumn<SancionListDTO, String> columnSancion;
-    @FXML public TableColumn<SancionListDTO, String> columnDescripcion;
-    @FXML public TableColumn<SancionListDTO, String> columnFecha;
-    @FXML public TableColumn<SancionListDTO, Long> columnIdPrestamo;
+    @FXML public TableView<SancionClienteListDTO> tableSanciones;
+    @FXML public TableColumn<SancionClienteListDTO, Long> columnId;
+    @FXML public TableColumn<SancionClienteListDTO, String> columnSancion;
+    @FXML public TableColumn<SancionClienteListDTO, String> columnDescripcion;
+    @FXML public TableColumn<SancionClienteListDTO, String> columnFecha;
+    @FXML public TableColumn<SancionClienteListDTO, Long> columnIdPrestamo;
 
     @FXML public Label labelBuscando;
     @FXML public ProgressBar progressBarLoad;
@@ -30,7 +31,7 @@ public class SancionesClienteController {
     @FXML public Label labelNombreCliente;
 
     private final SancionService sancionService = new SancionService();
-    private List<SancionListDTO> sanciones;
+    private List<SancionClienteListDTO> sanciones;
 
     private ClienteListDTO cliente;
 
@@ -45,7 +46,7 @@ public class SancionesClienteController {
         AlertWindow alertWindow = new AlertWindow();
 
         try {
-            SancionListDTO selected = tableSanciones.getSelectionModel().getSelectedItem();
+            SancionClienteListDTO selected = tableSanciones.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 throw new NullPointerException("Ocurrió un error al seleccionar un elemento. Verifique que se encuentre seleccionada una sanción de la lista.");
             }
@@ -110,7 +111,7 @@ public class SancionesClienteController {
 
             } else {
                 progressBarLoad.setProgress(0.70);
-                ObservableList<SancionListDTO> data = FXCollections.observableArrayList(sanciones);
+                ObservableList<SancionClienteListDTO> data = FXCollections.observableArrayList(sanciones);
                 tableSanciones.setItems(data);
             }
 
@@ -146,6 +147,24 @@ public class SancionesClienteController {
         columnDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
         columnFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         columnIdPrestamo.setCellValueFactory(new PropertyValueFactory<>("idPrestamo"));
+
+        forceSingleLine(columnDescripcion);
+    }
+
+    private void forceSingleLine(TableColumn<SancionClienteListDTO, String> column) {
+        column.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.replaceAll("[\\r\\n]+", " ").trim());
+                    setWrapText(false);
+                }
+            }
+        });
     }
 
     public void setCliente(ClienteListDTO cliente) {

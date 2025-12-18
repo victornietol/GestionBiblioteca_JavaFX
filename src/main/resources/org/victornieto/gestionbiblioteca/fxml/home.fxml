@@ -69,6 +69,11 @@
                         <fx:include fx:id="tabClientes" source="tabs/tabClientes.fxml" />
                     </content>
                   </Tab>
+                  <Tab text="Sanciones">
+                    <content>
+                      <fx:include fx:id="tabSanciones" source="tabs/tabSanciones.fxml" />
+                    </content>
+                  </Tab>
                   <Tab fx:id="tabReportesTab" text="Reportes">
                     <content>
                         <fx:include fx:id="tabReportes" source="tabs/tabReportes.fxml" />

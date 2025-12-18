@@ -2,7 +2,7 @@ package org.victornieto.gestionbiblioteca.dto;
 
 import java.time.LocalDate;
 
-public class SancionListDTO {
+public class SancionClienteListDTO {
 
     private Long id;
     private String sancion;
@@ -10,7 +10,7 @@ public class SancionListDTO {
     private LocalDate fecha;
     private Long idPrestamo;
 
-    public SancionListDTO(Long id, String sancion, String descripcion, LocalDate fecha, Long idPrestamo) {
+    public SancionClienteListDTO(Long id, String sancion, String descripcion, LocalDate fecha, Long idPrestamo) {
         this.id = id;
         this.sancion = sancion;
         this.descripcion = descripcion;
