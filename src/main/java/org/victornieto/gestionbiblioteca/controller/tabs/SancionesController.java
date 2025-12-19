@@ -7,12 +7,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import org.victornieto.gestionbiblioteca.dto.SancionToUpdateDTO;
 import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionesListUpdateDTO;
 import org.victornieto.gestionbiblioteca.service.SancionService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
+import org.victornieto.gestionbiblioteca.utility.LoadingDialog;
 import org.victornieto.gestionbiblioteca.utility.SancionesViewTitlesMenuBtn;
+import org.victornieto.gestionbiblioteca.utility.TypeSancion;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SancionesController {
@@ -22,6 +28,7 @@ public class SancionesController {
     @FXML public Button btnSearch;
     @FXML public MenuButton menuBtnOrdenCampo;
     @FXML public MenuButton menuBtnOrden;
+    @FXML public Button btnUpdate;
 
     @FXML public Label labelBuscando;
     @FXML public ProgressBar progressBarLoad;
@@ -39,6 +46,7 @@ public class SancionesController {
 
     private SancionService sancionService;
     private List<SancionesListDTO> sancionesList;
+    private List<SancionesListUpdateDTO> listToUpdate;
     private String columnToSearch;
     private String coincidenceToSearch;
     private String orderByColumn;
@@ -55,7 +63,42 @@ public class SancionesController {
 
     @FXML
     public void updateSanciones() {
+        btnUpdate.setDisable(true);
+        LoadingDialog loadingDialog = new LoadingDialog("Actualizando sanciones...");
+        loadingDialog.show();
+        final int[] amounUpdated = new int[1]; // Numero de sanciones actualizadas
 
+        Task<Void> taskUpdate = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                listToUpdate = sancionService.getListToUpdate();
+                List<SancionToUpdateDTO> selectedToUpdate = selectSancionesToUpdate(listToUpdate);
+                amounUpdated[0] =  applyUpdate(selectedToUpdate);
+                return null;
+            }
+        };
+
+        taskUpdate.setOnSucceeded(e -> {
+            if (amounUpdated[0]==0) {
+                loadingDialog.completeMessage("No se realizaron actualizaciones.\nTodas las sanciones están al corriente.");
+            } else {
+                loadingDialog.completeMessage("Actualización completada.\nCantidad de sanciones actualizadas: " + amounUpdated[0]);
+            }
+            showSanciones(); // volver a cargar sanciones
+            btnUpdate.setDisable(false);
+        });
+
+        taskUpdate.setOnFailed(e -> {
+            loadingDialog.close();
+            System.out.println(taskUpdate.getException().getMessage());
+            AlertWindow alertWindow = new AlertWindow();
+            alertWindow.generateError("Error", "Error al actualizar las sanciones",null);
+            btnUpdate.setDisable(false);
+        });
+
+        Thread thread = new Thread(taskUpdate);
+        thread.setDaemon(true);
+        thread.start();
     }
     
     @FXML
@@ -134,6 +177,63 @@ public class SancionesController {
             System.out.println("Ocurrió un error al ejecutar la tarea para recuperar las sanciones.");
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    private List<SancionToUpdateDTO> selectSancionesToUpdate(List<SancionesListUpdateDTO> listToUpdate) {
+        List<SancionToUpdateDTO> list = new ArrayList<>();
+        for (SancionesListUpdateDTO sancion: listToUpdate) {
+            long daysDiff = ChronoUnit.DAYS.between(sancion.fechaEntrega(), LocalDate.now());
+            long newId = selectTypeSancion(daysDiff);
+
+            if (sancion.id_tipo() != newId) {
+                list.add(
+                        new SancionToUpdateDTO(sancion.id(), newId, LocalDate.now())
+                );
+            }
+        }
+
+        return list;
+    }
+
+    private Long selectTypeSancion(Long daysDiff) {
+        /**
+         * Asigna el valor del ID del tipo de retardo que corresponde
+         */
+        if (daysDiff>=TypeSancion.RETARDO_1.get("min") && daysDiff<=TypeSancion.RETARDO_1.get("max"))
+            return Long.valueOf(TypeSancion.RETARDO_1.get("id"));
+
+        else if (daysDiff>=TypeSancion.RETARDO_2.get("min") && daysDiff<=TypeSancion.RETARDO_2.get("max"))
+            return Long.valueOf(TypeSancion.RETARDO_2.get("id"));
+
+        else if (daysDiff>=TypeSancion.RETARDO_3.get("min") && daysDiff<=TypeSancion.RETARDO_3.get("max"))
+            return Long.valueOf(TypeSancion.RETARDO_3.get("id"));
+
+        else if (daysDiff>=TypeSancion.RETARDO_4.get("min") && daysDiff<=TypeSancion.RETARDO_4.get("max"))
+            return Long.valueOf(TypeSancion.RETARDO_4.get("id"));
+
+        else if (daysDiff>=TypeSancion.RETARDO_5.get("min"))
+            return Long.valueOf(TypeSancion.RETARDO_5.get("id"));
+
+        else throw new IllegalArgumentException("No se pudo asignar ID de retardo para actualización.");
+    }
+
+    private Integer applyUpdate(List<SancionToUpdateDTO> sanciones) {
+        int count = 0;
+        boolean updated;
+
+        try {
+            for (SancionToUpdateDTO sancion: sanciones) {
+                updated = sancionService.updateSancion(sancion);
+                if (updated) {
+                    count++;
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return count;
     }
 
     private void generateFunctionMenuButton() {

@@ -1,15 +1,14 @@
 package org.victornieto.gestionbiblioteca.repository;
 
 import org.victornieto.gestionbiblioteca.database.ConnectionDBImpl_MySQL;
-import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionClienteListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
+import org.victornieto.gestionbiblioteca.dto.*;
 import org.victornieto.gestionbiblioteca.utility.SancionesViewTitlesMenuBtn;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 public class SancionRepositoryImpl implements SancionRepository{
@@ -118,6 +117,54 @@ public class SancionRepositoryImpl implements SancionRepository{
     }
 
     @Override
+    public List<SancionesListUpdateDTO> getSancionesToUpdate() throws SQLException {
+        /**
+         * Solo se obtienen las sanciones que no se hayan actualizado en el día actual
+         */
+        String query = """
+                SELECT
+                	s.id AS id,
+                    s.id_tipo AS id_tipo,
+                    p.fecha_fin as fecha_entrega
+                FROM sanciones s
+                JOIN prestamo p ON (s.fk_prestamo = p.id)
+                WHERE s.activo = 1 AND s.fecha <> ?
+                """;
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+
+            ResultSet resultSet = stmt.executeQuery();
+            return transformToDTOUpdate(resultSet);
+
+        } catch (SQLException e) {
+            throw new SQLException("Ocurrió un error al obtener las sanciones para actualización.");
+        }
+    }
+
+    @Override
+    public Boolean updateSancion(SancionToUpdateDTO sancion) throws SQLException {
+        String query = "UPDATE sanciones SET id_tipo = ?, fecha = ? WHERE id = ?";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, sancion.id_tipo());
+            stmt.setDate(2, java.sql.Date.valueOf(sancion.fecha()));
+            stmt.setLong(3, sancion.id());
+
+            int res = stmt.executeUpdate();
+            return res != 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Ocurrió un error al actualizar las sanción.");
+        }
+    }
+
+    @Override
     public Boolean delete(Long id) throws SQLException {
         String query = "UPDATE sanciones SET activo = 0 WHERE id = ?";
 
@@ -135,6 +182,22 @@ public class SancionRepositoryImpl implements SancionRepository{
         } catch (SQLException e) {
             throw new SQLException("Ocurrió un error al eliminar el sanción.");
         }
+    }
+
+    private List<SancionesListUpdateDTO> transformToDTOUpdate(ResultSet resultSet) throws SQLException {
+        List<SancionesListUpdateDTO> list = new ArrayList<>();
+
+        while(resultSet.next()) {
+            list.add(
+                    new SancionesListUpdateDTO(
+                            resultSet.getLong("id"),
+                            resultSet.getLong("id_tipo"),
+                            resultSet.getDate("fecha_entrega").toLocalDate()
+                    )
+            );
+        }
+
+        return list;
     }
 
     private List<SancionClienteListDTO> transformToDTOList(ResultSet resultSet) throws SQLException {
