@@ -2,6 +2,7 @@ package org.victornieto.gestionbiblioteca.repository;
 
 import org.victornieto.gestionbiblioteca.dto.PrestamoDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.dto.PrestamoWithoutSancionDTO;
 import org.victornieto.gestionbiblioteca.model.PrestamoModel;
 
 import java.sql.SQLException;
@@ -17,5 +18,6 @@ public interface PrestamoRepository {
     Integer getNumberActivePrestamos() throws SQLException;
     List<PrestamoListDTO> getReturnedPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException;
     List<PrestamoListDTO> getAllPrestamosToday(String columnToSearch, String coincidenceToSearch, String orderByColumn, boolean orderDes) throws SQLException;
+    List<PrestamoWithoutSancionDTO> getPrestamosWithoutSancion() throws SQLException;
     Boolean returnPrestamo(Long idPrestamo) throws SQLException;
 }

@@ -3,6 +3,7 @@ package org.victornieto.gestionbiblioteca.repository;
 import org.victornieto.gestionbiblioteca.database.ConnectionDBImpl_MySQL;
 import org.victornieto.gestionbiblioteca.dto.PrestamoDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.dto.PrestamoWithoutSancionDTO;
 import org.victornieto.gestionbiblioteca.model.PrestamoModel;
 import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
 
@@ -243,6 +244,32 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
     }
 
     @Override
+    public List<PrestamoWithoutSancionDTO> getPrestamosWithoutSancion() throws SQLException {
+        List<PrestamoWithoutSancionDTO> list;
+
+        String query = """
+                SELECT
+                	p.id AS id_prestamo,
+                	p.fk_cliente AS id_cliente,
+                    p.fecha_fin AS fecha_entrega
+                FROM prestamo p
+                LEFT JOIN sanciones s ON (p.id = s.fk_prestamo)
+                WHERE p.activo = 1 AND s.fk_prestamo IS NULL
+                """;
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet resultSet = stmt.executeQuery();
+            return tranformToPrestamoWithoutSancion(resultSet);
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Error al obtener préstamos sin sanción.");
+        }
+    }
+
+    @Override
     public Boolean returnPrestamo(Long idPrestamo) throws SQLException {
         String query = "UPDATE prestamo SET activo = 0, fecha_fin = ? WHERE id = ?";
 
@@ -265,7 +292,21 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
         }
     }
 
+    private List<PrestamoWithoutSancionDTO> tranformToPrestamoWithoutSancion(ResultSet resultSet) throws SQLException {
+        List<PrestamoWithoutSancionDTO> list = new ArrayList<>();
 
+        while(resultSet.next()) {
+            list.add(
+                    new PrestamoWithoutSancionDTO(
+                            resultSet.getLong("id_prestamo"),
+                            resultSet.getLong("id_cliente"),
+                            resultSet.getDate("fecha_entrega").toLocalDate()
+                    )
+            );
+        }
+
+        return list;
+    }
 
     private String createQuery(String columnToSearch, String coincidenceToSeach, String orderByColumn, boolean orderDesc, boolean all) {
         String queryActive = """

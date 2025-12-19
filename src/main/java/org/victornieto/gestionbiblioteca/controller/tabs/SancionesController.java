@@ -7,9 +7,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import org.victornieto.gestionbiblioteca.dto.PrestamoWithoutSancionDTO;
 import org.victornieto.gestionbiblioteca.dto.SancionToUpdateDTO;
 import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
 import org.victornieto.gestionbiblioteca.dto.SancionesListUpdateDTO;
+import org.victornieto.gestionbiblioteca.service.PrestamoService;
 import org.victornieto.gestionbiblioteca.service.SancionService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 import org.victornieto.gestionbiblioteca.utility.LoadingDialog;
@@ -45,6 +47,7 @@ public class SancionesController {
     @FXML public TableColumn<SancionesListDTO, Long> columnIdEjemplar;
 
     private SancionService sancionService;
+    private PrestamoService prestamoService;
     private List<SancionesListDTO> sancionesList;
     private List<SancionesListUpdateDTO> listToUpdate;
     private String columnToSearch;
@@ -55,6 +58,7 @@ public class SancionesController {
     @FXML
     public void initialize() {
         this.sancionService = new SancionService();
+        this.prestamoService = new PrestamoService();
 
         generateFunctionMenuButton();
         setColumns();
@@ -74,6 +78,9 @@ public class SancionesController {
                 listToUpdate = sancionService.getListToUpdate();
                 List<SancionToUpdateDTO> selectedToUpdate = selectSancionesToUpdate(listToUpdate);
                 amounUpdated[0] =  applyUpdate(selectedToUpdate);
+
+                List<PrestamoWithoutSancionDTO> prestamos = prestamoService.getPrestamosWithoutSancion(); // <-------
+
                 return null;
             }
         };

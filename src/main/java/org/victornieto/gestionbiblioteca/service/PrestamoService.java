@@ -2,6 +2,7 @@ package org.victornieto.gestionbiblioteca.service;
 
 import org.victornieto.gestionbiblioteca.dto.PrestamoDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.dto.PrestamoWithoutSancionDTO;
 import org.victornieto.gestionbiblioteca.model.PrestamoModel;
 import org.victornieto.gestionbiblioteca.repository.PrestamoRepository;
 import org.victornieto.gestionbiblioteca.repository.PrestamoRepositoryImpl;
@@ -87,6 +88,14 @@ public class PrestamoService {
         }
 
         return prestamos;
+    }
+
+    public List<PrestamoWithoutSancionDTO> getPrestamosWithoutSancion() {
+        try {
+            return prestamoRepository.getPrestamosWithoutSancion();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public Optional<PrestamoModel> createPrestamo(PrestamoDTO prestamoDTO) {
