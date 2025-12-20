@@ -145,6 +145,27 @@ public class SancionRepositoryImpl implements SancionRepository{
     }
 
     @Override
+    public Boolean create(SancionFormDTO sancion) throws SQLException {
+        String query = "INSERT INTO sanciones (id_tipo, id_cliente, fecha, fk_prestamo, activo) VALUES (?,?,?,?,1)";
+
+        try (Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setLong(1, sancion.idTipo());
+            stmt.setLong(2, sancion.idCliente());
+            stmt.setDate(3, java.sql.Date.valueOf(sancion.fecha()));
+            stmt.setLong(4, sancion.fkPrestamo());
+
+            int res = stmt.executeUpdate();
+            return res!=0;
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+            throw new SQLException("Ocurrió un error al crear sanción.");
+        }
+    }
+
+    @Override
     public Boolean updateSancion(SancionToUpdateDTO sancion) throws SQLException {
         String query = "UPDATE sanciones SET id_tipo = ?, fecha = ? WHERE id = ?";
 

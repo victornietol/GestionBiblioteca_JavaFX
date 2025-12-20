@@ -7,10 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import org.victornieto.gestionbiblioteca.dto.PrestamoWithoutSancionDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionToUpdateDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListUpdateDTO;
+import org.victornieto.gestionbiblioteca.dto.*;
 import org.victornieto.gestionbiblioteca.service.PrestamoService;
 import org.victornieto.gestionbiblioteca.service.SancionService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
@@ -18,6 +15,7 @@ import org.victornieto.gestionbiblioteca.utility.LoadingDialog;
 import org.victornieto.gestionbiblioteca.utility.SancionesViewTitlesMenuBtn;
 import org.victornieto.gestionbiblioteca.utility.TypeSancion;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -70,26 +68,37 @@ public class SancionesController {
         btnUpdate.setDisable(true);
         LoadingDialog loadingDialog = new LoadingDialog("Actualizando sanciones...");
         loadingDialog.show();
-        final int[] amounUpdated = new int[1]; // Numero de sanciones actualizadas
+        final int[] amounUpdatedAndCreated = new int[2]; // 0: numero de sanciones actualizadas, 1: numero de sanciones creadas
 
         Task<Void> taskUpdate = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
+                // sanciones a actualizar
                 listToUpdate = sancionService.getListToUpdate();
                 List<SancionToUpdateDTO> selectedToUpdate = selectSancionesToUpdate(listToUpdate);
-                amounUpdated[0] =  applyUpdate(selectedToUpdate);
+                amounUpdatedAndCreated[0] =  applyUpdate(selectedToUpdate);
 
-                List<PrestamoWithoutSancionDTO> prestamos = prestamoService.getPrestamosWithoutSancion(); // <-------
+                // sanciones a crear
+                List<PrestamoWithoutSancionDTO> prestamos = prestamoService.getPrestamosWithoutSancion();
+                List<SancionFormDTO> prestamosToPenalize = selectPrestamosToPenalize(prestamos);
+                amounUpdatedAndCreated[1] = createSanciones(prestamosToPenalize);
 
                 return null;
             }
         };
 
         taskUpdate.setOnSucceeded(e -> {
-            if (amounUpdated[0]==0) {
-                loadingDialog.completeMessage("No se realizaron actualizaciones.\nTodas las sanciones están al corriente.");
-            } else {
-                loadingDialog.completeMessage("Actualización completada.\nCantidad de sanciones actualizadas: " + amounUpdated[0]);
+            if (amounUpdatedAndCreated[0]==0 && amounUpdatedAndCreated[1]==0) {
+                loadingDialog.completeMessage("No se realizaron movimientos.\nTodas las sanciones están al corriente.");
+
+            } else if (amounUpdatedAndCreated[0]>0 && amounUpdatedAndCreated[1]==0) {
+                loadingDialog.completeMessage("Actualización completada.\nCantidad de sanciones actualizadas: " + amounUpdatedAndCreated[0] + "\nCantidad de nuevas sanciones: 0");
+
+            } else if (amounUpdatedAndCreated[0]==0 && amounUpdatedAndCreated[1]>0){
+                loadingDialog.completeMessage("Actualización completada.\nCantidad de sanciones actualizadas: 0\nCantidad de nuevas sanciones: " + amounUpdatedAndCreated[1]);
+
+            } else if (amounUpdatedAndCreated[0]>0 && amounUpdatedAndCreated[1]>0) {
+                loadingDialog.completeMessage("Actualización completada.\nCantidad de sanciones actualizadas: " + amounUpdatedAndCreated[0] + "\nCantidad de nuevas sanciones: " + amounUpdatedAndCreated[1]);
             }
             showSanciones(); // volver a cargar sanciones
             btnUpdate.setDisable(false);
@@ -202,6 +211,27 @@ public class SancionesController {
         return list;
     }
 
+    private List<SancionFormDTO> selectPrestamosToPenalize(List<PrestamoWithoutSancionDTO> prestamos) {
+        List<SancionFormDTO> listToPenalize = new ArrayList<>();
+        for (PrestamoWithoutSancionDTO prestamo: prestamos) {
+            long daysDiff = ChronoUnit.DAYS.between(prestamo.fechaEntrega(), LocalDate.now());
+            long idSancion = selectTypeSancion(daysDiff);
+
+            if (idSancion != 0) {
+                // Aplicar penalización
+                listToPenalize.add(
+                        new SancionFormDTO(
+                                idSancion,
+                                prestamo.idCliente(),
+                                LocalDate.now(),
+                                prestamo.idPrestamo()
+                        )
+                );
+            }
+        }
+        return listToPenalize;
+    }
+
     private Long selectTypeSancion(Long daysDiff) {
         /**
          * Asigna el valor del ID del tipo de retardo que corresponde
@@ -221,7 +251,7 @@ public class SancionesController {
         else if (daysDiff>=TypeSancion.RETARDO_5.get("min"))
             return Long.valueOf(TypeSancion.RETARDO_5.get("id"));
 
-        else throw new IllegalArgumentException("No se pudo asignar ID de retardo para actualización.");
+        else return 0L;
     }
 
     private Integer applyUpdate(List<SancionToUpdateDTO> sanciones) {
@@ -236,6 +266,23 @@ public class SancionesController {
                 }
             }
 
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return count;
+    }
+
+    private Integer createSanciones(List<SancionFormDTO> sanciones) {
+        int count = 0;
+        boolean created;
+        try {
+            for (SancionFormDTO sancion: sanciones) {
+                created = sancionService.create(sancion);
+                if (created) {
+                    count++;
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

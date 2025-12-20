@@ -4,13 +4,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -52,9 +49,12 @@ public class LoadingDialog {
         BorderPane.setMargin(buttonBox, new Insets(10));
         BorderPane.setMargin(loaderBox, new Insets(20));
 
-        root.setPrefSize(300,140);
+        root.setPrefSize(310,180);
         root.setStyle("""
                 -fx-background-radius: 10;
+                -fx-border-color: lightgray;
+                -fx-border-width: 1;
+                -fx-border-radius: 10;
                 -fx-padding: 10;
                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 4);
                 """);

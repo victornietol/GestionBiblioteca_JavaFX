@@ -1,9 +1,6 @@
 package org.victornieto.gestionbiblioteca.service;
 
-import org.victornieto.gestionbiblioteca.dto.SancionClienteListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionToUpdateDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListUpdateDTO;
+import org.victornieto.gestionbiblioteca.dto.*;
 import org.victornieto.gestionbiblioteca.repository.SancionRepository;
 import org.victornieto.gestionbiblioteca.repository.SancionRepositoryImpl;
 
@@ -41,6 +38,14 @@ public class SancionService {
     public List<SancionesListUpdateDTO> getListToUpdate() {
         try {
             return sancionRepository.getSancionesToUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Boolean create(SancionFormDTO sancion) {
+        try {
+            return sancionRepository.create(sancion);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
