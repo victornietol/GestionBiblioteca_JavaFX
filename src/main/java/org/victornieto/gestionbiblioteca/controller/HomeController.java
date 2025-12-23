@@ -1,13 +1,26 @@
 package org.victornieto.gestionbiblioteca.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.controller.tabs.*;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 public class HomeController {
+
+    @FXML private VBox root;
 
     @FXML private AnchorPane tabInventario;
     @FXML private InventarioController tabInventarioController;
@@ -37,6 +50,29 @@ public class HomeController {
                 tabReportesController.refreshData();
             }
         });
+    }
+
+    @FXML
+    public void openInfo(ActionEvent event) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/info.fxml"));
+            Parent parent = fxmlLoader.load();
+
+            Stage newStage = new Stage();
+            newStage.setTitle("Información");
+            newStage.setScene(new Scene(parent));
+            newStage.initModality(Modality.WINDOW_MODAL);
+            newStage.setResizable(false);
+            newStage.setHeight(300);
+            newStage.setWidth(400);
+
+            Stage currentStage = (Stage) root.getScene().getWindow();
+            newStage.initOwner(currentStage);
+            newStage.showAndWait();
+
+        } catch (IOException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+        }
     }
 
     public void setUserLogged(UsuarioModel userLogged) {
