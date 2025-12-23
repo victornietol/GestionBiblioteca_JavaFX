@@ -12,6 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.victornieto.gestionbiblioteca.Main;
 import org.victornieto.gestionbiblioteca.controller.tabs.*;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
@@ -53,7 +54,7 @@ public class HomeController {
     }
 
     @FXML
-    public void openInfo(ActionEvent event) {
+    public void openInfo() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/victornieto/gestionbiblioteca/fxml/info.fxml"));
             Parent parent = fxmlLoader.load();
@@ -73,6 +74,36 @@ public class HomeController {
         } catch (IOException e) {
             System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
         }
+    }
+
+    @FXML
+    public void logout() {
+        try {
+            clearSession();
+            Stage currentStage = (Stage) root.getScene().getWindow();
+            openLoginWindow();
+            currentStage.close();
+        } catch (IOException e) {
+            System.out.println("Error: " + Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    private void clearSession() {
+        userLogged = null;
+    }
+
+    private void openLoginWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("fxml/login.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+
+        Stage stage = new Stage();
+
+        stage.setTitle("Gestión de biblioteca");
+        stage.setScene(scene);
+        stage.setMinHeight(700);
+        stage.setMinWidth(400);
+
+        stage.show();
     }
 
     public void setUserLogged(UsuarioModel userLogged) {
