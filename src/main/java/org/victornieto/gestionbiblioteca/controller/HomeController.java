@@ -15,12 +15,15 @@ import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.Main;
 import org.victornieto.gestionbiblioteca.controller.tabs.*;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
+import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 import org.victornieto.gestionbiblioteca.service.LibroService;
 import org.victornieto.gestionbiblioteca.service.PdfService;
+import org.victornieto.gestionbiblioteca.service.PrestamoService;
 import org.victornieto.gestionbiblioteca.utility.AlertWindow;
 import org.victornieto.gestionbiblioteca.utility.FileGenerator;
 import org.victornieto.gestionbiblioteca.utility.LoadingDialog;
+import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +104,7 @@ public class HomeController {
                             true,
                             "Todos",
                             "",
-                            "ID",
+                            "Título",
                             false);
                 }
             };
@@ -112,7 +115,7 @@ public class HomeController {
                     List<LibroInventarioDTO> list = taskReport.getValue();
                     String[] headers = {"ID", "Título", "Autor", "Categoría", "Editorial", "Edición", "Año", "Páginas", "Unidades"};
                     float[] colWidths = {40, 200, 200, 60, 60, 60, 40, 40, 40};
-                    new PdfService().generateTitlesUnitsBooks(list, headers, colWidths, userLogged, file);
+                    new PdfService().generateTitlesUnitsBooks(list, true, headers, colWidths, userLogged, file);
                     dialog.close();
                     alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n"+file);
 
@@ -126,6 +129,112 @@ public class HomeController {
             taskReport.setOnFailed(e -> {
                 dialog.close();
                 alertWindow.generateError("Error", "Ocurrió un error generar el reporte de títulos de libros", null);
+            });
+
+            Thread thread = new Thread(taskReport);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    @FXML
+    public void reportUnits() {
+        File file = new FileGenerator().createFile("reporte_unidades_libro", root);
+
+        if (file != null) {
+            AlertWindow alertWindow = new AlertWindow();
+            LoadingDialog dialog = new LoadingDialog("Generando reporte.");
+            dialog.show();
+
+            Task<List<LibroInventarioDTO>> taskReport = new Task<>() {
+                @Override
+                protected List<LibroInventarioDTO> call() {
+                    return new LibroService().getLibrosForInventario(
+                            false,
+                            "Todos",
+                            "",
+                            "Título",
+                            false);
+                }
+            };
+
+            taskReport.setOnSucceeded(e -> {
+                try {
+                    // generar reporte
+                    List<LibroInventarioDTO> list = taskReport.getValue();
+                    String[] headers = {"ID", "Título", "Autor", "Categoría", "Editorial", "Edición", "Año", "Páginas", "Unidades"};
+                    float[] colWidths = {40, 200, 200, 60, 60, 60, 40, 40, 40};
+                    new PdfService().generateTitlesUnitsBooks(list, false, headers, colWidths, userLogged, file);
+                    dialog.close();
+                    alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n"+file);
+
+                } catch (Exception ex) {
+                    System.out.println("Error al crear pdf: " + Arrays.toString(ex.getStackTrace()));
+                    dialog.close();
+                    alertWindow.generateError("Error", "Ocurrió un error generar el reporte de unidades de libros", null);
+                }
+            });
+
+            taskReport.setOnFailed(e -> {
+                dialog.close();
+                alertWindow.generateError("Error", "Ocurrió un error generar el reporte de unidades de libros", null);
+            });
+
+            Thread thread = new Thread(taskReport);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    @FXML
+    public void reportPrestamos() {
+        File file = new FileGenerator().createFile("reporte_prestamos_activos", root);
+
+        if (file != null) {
+            AlertWindow alertWindow = new AlertWindow();
+            LoadingDialog dialog = new LoadingDialog("Generando reporte.");
+            dialog.show();
+
+            Task<List<PrestamoListDTO>> taskReport = new Task<>() {
+                @Override
+                protected List<PrestamoListDTO> call() {
+                    return new PrestamoService().getPrestamosList(
+                            PrestamosViewTitlesMenuBtn.TODOS,
+                            "",
+                            PrestamosViewTitlesMenuBtn.FECHA_INICIO,
+                            false
+                    );
+            }};
+
+            taskReport.setOnSucceeded(e -> {
+                try {
+                    // generar reporte
+                    List<PrestamoListDTO> list = taskReport.getValue();
+                    String[] headers = {
+                            PrestamosViewTitlesMenuBtn.ID,
+                            "Inicio",
+                            "Fin",
+                            "ID_Ejemplar",
+                            PrestamosViewTitlesMenuBtn.TITULO,
+                            PrestamosViewTitlesMenuBtn.AUTOR,
+                            PrestamosViewTitlesMenuBtn.CLIENTE,
+                            PrestamosViewTitlesMenuBtn.ATENDIO
+                    };
+                    float[] colWidths = {40, 60, 60, 70, 200, 170, 100, 80};
+                    new PdfService().generatePrestamos(list, headers, colWidths, userLogged, file);
+                    dialog.close();
+                    alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n"+file);
+
+                } catch (Exception ex) {
+                    System.out.println("Error al crear pdf: " + Arrays.toString(ex.getStackTrace()));
+                    dialog.close();
+                    alertWindow.generateError("Error", "Ocurrió un error generar el reporte de prestamos activos.", null);
+                }
+            });
+
+            taskReport.setOnFailed(e -> {
+                dialog.close();
+                alertWindow.generateError("Error", "Ocurrió un error generar el reporte de prestamos activos.", null);
             });
 
             Thread thread = new Thread(taskReport);

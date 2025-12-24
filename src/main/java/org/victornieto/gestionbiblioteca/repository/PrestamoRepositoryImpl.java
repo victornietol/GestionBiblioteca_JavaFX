@@ -326,7 +326,7 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
                 		DATE(p.fecha_fin) AS fecha_entrega,
                 		p.id_ejemplar AS id_ejemplar,
                 		TRIM(CONCAT(c.nombre, ' ', c.apellido_p, ' ', COALESCE(c.apellido_m, ''))) AS cliente,
-                		TRIM(CONCAT(u.nombre, ' ', u.apellido_p, ' ', COALESCE(u.apellido_m, ''))) AS usuario
+                		u.username AS usuario
                 	FROM prestamo p
                 	JOIN cliente c ON (p.fk_cliente = c.id)
                 	JOIN usuario u ON (p.fk_usuario = u.id)
@@ -368,7 +368,7 @@ public class PrestamoRepositoryImpl implements PrestamoRepository{
                 		DATE(p.fecha_fin) AS fecha_entrega,
                 		p.id_ejemplar AS id_ejemplar,
                 		TRIM(CONCAT(c.nombre, ' ', c.apellido_p, ' ', COALESCE(c.apellido_m, ''))) AS cliente,
-                		TRIM(CONCAT(u.nombre, ' ', u.apellido_p, ' ', COALESCE(u.apellido_m, ''))) AS usuario
+                		u.username AS usuario
                 	FROM prestamo p
                 	JOIN cliente c ON (p.fk_cliente = c.id)
                 	JOIN usuario u ON (p.fk_usuario = u.id)

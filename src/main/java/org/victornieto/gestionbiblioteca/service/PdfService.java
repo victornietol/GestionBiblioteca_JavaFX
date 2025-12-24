@@ -8,6 +8,7 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.PDType3Font;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
+import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
 import java.io.File;
@@ -23,7 +24,7 @@ public class PdfService {
     private static final float ROW_HEIGHT = 20;
     private static final float CELL_MARGIN = 5;
 
-    public void generateTitlesUnitsBooks(List<LibroInventarioDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
+    public void generateTitlesUnitsBooks(List<LibroInventarioDTO> list, Boolean areTitles, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
         PDDocument document = new PDDocument();
         PDRectangle landscape = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
         PDPage page = new PDPage(landscape);
@@ -36,7 +37,7 @@ public class PdfService {
 
         createHeader(
                 content,
-                "Reporte de títulos de libros",
+                areTitles ? "Reporte de títulos de libros" : "Reporte de unidades de libros disponibles",
                 String.valueOf(LocalDate.now()),
                 String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
                 user,
@@ -74,6 +75,67 @@ public class PdfService {
                     String.valueOf(libro.getAnio_publicacion()),
                     String.valueOf(libro.getPaginas()),
                     String.valueOf(libro.getUnidades())
+            };
+
+            drawRow(content, yStart, colWidths, row, false);
+            yStart -= ROW_HEIGHT;
+        }
+
+        content.close();
+        document.save(file);
+        document.close();
+    }
+
+    public void generatePrestamos(List<PrestamoListDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
+        PDDocument document = new PDDocument();
+        PDRectangle landscape = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
+        PDPage page = new PDPage(landscape);
+        page.setRotation(90);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+
+        float yStart = page.getMediaBox().getHeight() - MARGIN;
+
+        createHeader(
+                content,
+                "Reporte de préstamos activos",
+                String.valueOf(LocalDate.now()),
+                String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
+                user,
+                String.valueOf(list.size()),
+                yStart
+        );
+
+        yStart -= 50;
+
+        drawRow(content, yStart, colWidths, headers, true);
+
+        yStart -= ROW_HEIGHT;
+
+        for(PrestamoListDTO prestamo: list) {
+            //salto de pagina
+            if (yStart<MARGIN) {
+                content.close();
+                page = new PDPage(landscape);
+                page.setRotation(90);
+                document.addPage(page);
+                content = new PDPageContentStream(document, page);
+                yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                yStart -= ROW_HEIGHT;
+            }
+
+            String[] row = {
+                    String.valueOf(prestamo.idPrestamo()),
+                    prestamo.getFechaInicio().toString(),
+                    prestamo.getFechaEntrega().toString(),
+                    prestamo.idEjemplar().toString(),
+                    prestamo.getTitulo(),
+                    prestamo.getAutor(),
+                    prestamo.getCliente(),
+                    prestamo.getUsuario()
             };
 
             drawRow(content, yStart, colWidths, row, false);

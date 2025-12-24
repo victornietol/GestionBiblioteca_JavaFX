@@ -1,7 +1,6 @@
 package org.victornieto.gestionbiblioteca.utility;
 
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 

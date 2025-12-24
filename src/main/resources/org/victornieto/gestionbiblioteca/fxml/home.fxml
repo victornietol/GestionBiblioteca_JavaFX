@@ -18,8 +18,8 @@
             <Menu mnemonicParsing="false" text="Generar reporte de..." >
               <items>
                 <MenuItem mnemonicParsing="false" text="Titulos de libros" onAction="#reportTitles"/>
-                <MenuItem mnemonicParsing="false" text="Ejemplares de libros"/>
-                <MenuItem mnemonicParsing="false" text="Prestamos"/>
+                <MenuItem mnemonicParsing="false" text="Ejemplares de libros" onAction="#reportUnits"/>
+                <MenuItem mnemonicParsing="false" text="Préstamos activos" onAction="#reportPrestamos"/>
                 <MenuItem mnemonicParsing="false" text="Clientes"/>
                 <MenuItem mnemonicParsing="false" text="Sanciones"/>
               </items>
@@ -46,7 +46,7 @@
                     <fx:include fx:id="tabInventario" source="tabs/tabInventario.fxml" />
                   </content>
                 </Tab>
-                <Tab text="Prestamos">
+                <Tab text="Préstamos">
                   <content>
                       <fx:include fx:id="tabPrestamos" source="tabs/tabPrestamos.fxml" />
                   </content>
