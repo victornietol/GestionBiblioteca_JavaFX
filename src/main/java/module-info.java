@@ -10,6 +10,7 @@ module org.victornieto.gestionbiblioteca {
     requires java.logging;
     requires java.sql;
     requires mysql.connector.j;
+    requires org.apache.pdfbox;
 
     opens org.victornieto.gestionbiblioteca to javafx.fxml;
     exports org.victornieto.gestionbiblioteca;
