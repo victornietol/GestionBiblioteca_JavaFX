@@ -4,11 +4,11 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.PDType3Font;
+import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
 import java.io.File;
@@ -26,9 +26,7 @@ public class PdfService {
 
     public void generateTitlesUnitsBooks(List<LibroInventarioDTO> list, Boolean areTitles, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
         PDDocument document = new PDDocument();
-        PDRectangle landscape = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
-        PDPage page = new PDPage(landscape);
-        page.setRotation(90);
+        PDPage page = createPage(true);
         document.addPage(page);
 
         PDPageContentStream content = new PDPageContentStream(document, page);
@@ -55,8 +53,7 @@ public class PdfService {
             //salto de pagina
             if (yStart<MARGIN) {
                 content.close();
-                page = new PDPage(landscape);
-                page.setRotation(90);
+                page = createPage(true);
                 document.addPage(page);
                 content = new PDPageContentStream(document, page);
                 yStart = page.getMediaBox().getHeight() - MARGIN;
@@ -88,9 +85,7 @@ public class PdfService {
 
     public void generatePrestamos(List<PrestamoListDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
         PDDocument document = new PDDocument();
-        PDRectangle landscape = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
-        PDPage page = new PDPage(landscape);
-        page.setRotation(90);
+        PDPage page = createPage(true);
         document.addPage(page);
 
         PDPageContentStream content = new PDPageContentStream(document, page);
@@ -117,8 +112,7 @@ public class PdfService {
             //salto de pagina
             if (yStart<MARGIN) {
                 content.close();
-                page = new PDPage(landscape);
-                page.setRotation(90);
+                page = createPage(true);
                 document.addPage(page);
                 content = new PDPageContentStream(document, page);
                 yStart = page.getMediaBox().getHeight() - MARGIN;
@@ -147,9 +141,123 @@ public class PdfService {
         document.close();
     }
 
+    public void generateClientes(List<ClienteListDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
+        PDDocument document = new PDDocument();
+        PDPage page = createPage(true);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+
+        float yStart = page.getMediaBox().getHeight() - MARGIN;
+
+        createHeader(
+                content,
+                "Reporte de clientes activos",
+                String.valueOf(LocalDate.now()),
+                String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
+                user,
+                String.valueOf(list.size()),
+                yStart
+        );
+
+        yStart -= 50;
+
+        drawRow(content, yStart, colWidths, headers, true);
+
+        yStart -= ROW_HEIGHT;
+
+        for(ClienteListDTO cliente: list) {
+            //salto de pagina
+            if (yStart<MARGIN) {
+                content.close();
+                page = createPage(true);
+                document.addPage(page);
+                content = new PDPageContentStream(document, page);
+                yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                yStart -= ROW_HEIGHT;
+            }
+
+            String[] row = {
+                    cliente.getUsername(),
+                    cliente.getNombre(),
+                    cliente.getCorreo(),
+                    cliente.getPrestamos().toString(),
+                    cliente.getSanciones().toString(),
+                    cliente.getFechaCreacion().toString()
+            };
+
+            drawRow(content, yStart, colWidths, row, false);
+            yStart -= ROW_HEIGHT;
+        }
+
+        content.close();
+        document.save(file);
+        document.close();
+    }
+
+    public void generateSanciones(List<SancionesListDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
+        PDDocument document = new PDDocument();
+        PDPage page = createPage(true);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+
+        float yStart = page.getMediaBox().getHeight() - MARGIN;
+
+        createHeader(
+                content,
+                "Reporte de sanciones activas",
+                String.valueOf(LocalDate.now()),
+                String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
+                user,
+                String.valueOf(list.size()),
+                yStart
+        );
+
+        yStart -= 50;
+
+        drawRow(content, yStart, colWidths, headers, true);
+
+        yStart -= ROW_HEIGHT;
+
+        for(SancionesListDTO sancion: list) {
+            //salto de pagina
+            if (yStart<MARGIN) {
+                content.close();
+                page = createPage(true);
+                document.addPage(page);
+                content = new PDPageContentStream(document, page);
+                yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                yStart -= ROW_HEIGHT;
+            }
+
+            String[] row = {
+                    sancion.getId().toString(),
+                    sancion.getSancion(),
+                    sancion.getDescripcion(),
+                    sancion.getCliente(),
+                    sancion.getIdPrestamo().toString(),
+                    sancion.getLibro(),
+                    sancion.getIdEjemplar().toString(),
+                    sancion.getFecha().toString()
+            };
+
+            drawRow(content, yStart, colWidths, row, false);
+            yStart -= ROW_HEIGHT;
+        }
+
+        content.close();
+        document.save(file);
+        document.close();
+    }
+
     private void drawRow(PDPageContentStream content, float y, float[] colWidths, String[] texts, boolean header) throws IOException {
         float x = MARGIN;
-        content.setFont(header ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, 10);
+        content.setFont(header ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, 9);
 
         for (int i=0; i<texts.length; i++) {
             //borde
@@ -208,5 +316,17 @@ public class PdfService {
         content.newLineAtOffset(MARGIN, yStart);
         content.showText("Registros encontrados: " + amounRecords);
         content.endText();
+    }
+
+    private PDPage createPage(Boolean horizontal) {
+        if (horizontal) {
+            PDRectangle landscape = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
+            PDPage page = new PDPage(landscape);
+            page.setRotation(90);
+            return page;
+
+        } else {
+            return new PDPage(PDRectangle.A4);
+        }
     }
 }

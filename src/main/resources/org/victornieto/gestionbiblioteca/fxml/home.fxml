@@ -20,8 +20,8 @@
                 <MenuItem mnemonicParsing="false" text="Titulos de libros" onAction="#reportTitles"/>
                 <MenuItem mnemonicParsing="false" text="Ejemplares de libros" onAction="#reportUnits"/>
                 <MenuItem mnemonicParsing="false" text="Préstamos activos" onAction="#reportPrestamos"/>
-                <MenuItem mnemonicParsing="false" text="Clientes"/>
-                <MenuItem mnemonicParsing="false" text="Sanciones"/>
+                <MenuItem mnemonicParsing="false" text="Clientes" onAction="#reportClientes"/>
+                <MenuItem mnemonicParsing="false" text="Sanciones activas" onAction="#reportSanciones"/>
               </items>
             </Menu>
 

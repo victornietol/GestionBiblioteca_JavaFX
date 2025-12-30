@@ -14,16 +14,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.Main;
 import org.victornieto.gestionbiblioteca.controller.tabs.*;
+import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
 import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
 import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
+import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
-import org.victornieto.gestionbiblioteca.service.LibroService;
-import org.victornieto.gestionbiblioteca.service.PdfService;
-import org.victornieto.gestionbiblioteca.service.PrestamoService;
-import org.victornieto.gestionbiblioteca.utility.AlertWindow;
-import org.victornieto.gestionbiblioteca.utility.FileGenerator;
-import org.victornieto.gestionbiblioteca.utility.LoadingDialog;
-import org.victornieto.gestionbiblioteca.utility.PrestamosViewTitlesMenuBtn;
+import org.victornieto.gestionbiblioteca.service.*;
+import org.victornieto.gestionbiblioteca.utility.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -235,6 +232,119 @@ public class HomeController {
             taskReport.setOnFailed(e -> {
                 dialog.close();
                 alertWindow.generateError("Error", "Ocurrió un error generar el reporte de prestamos activos.", null);
+            });
+
+            Thread thread = new Thread(taskReport);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    @FXML
+    public void reportClientes() {
+        File file = new FileGenerator().createFile("reporte_clientes_activos", root);
+
+        if (file != null) {
+            AlertWindow alertWindow = new AlertWindow();
+            LoadingDialog dialog = new LoadingDialog("Generando reporte.");
+            dialog.show();
+
+            Task<List<ClienteListDTO>> taskReport = new Task<>() {
+                @Override
+                protected List<ClienteListDTO> call() {
+                    return new ClienteService().getListDTOAll(
+                            ClientesViewTitlesMenuBtn.TODOS,
+                            "",
+                            ClientesViewTitlesMenuBtn.USERNAME,
+                            false
+                    );
+                }
+            };
+
+            taskReport.setOnSucceeded(e -> {
+                try {
+                    // generar reporte
+                    List<ClienteListDTO> list = taskReport.getValue();
+                    String[] headers = {
+                            ClientesViewTitlesMenuBtn.USERNAME,
+                            ClientesViewTitlesMenuBtn.NOMBRE,
+                            ClientesViewTitlesMenuBtn.CORREO,
+                            ClientesViewTitlesMenuBtn.PRESTAMOS,
+                            ClientesViewTitlesMenuBtn.SANCIONES,
+                            "Creación"
+                    };
+                    float[] colWidths = {90, 240, 180, 80, 80, 60};
+                    new PdfService().generateClientes(list, headers, colWidths, userLogged, file);
+                    dialog.close();
+                    alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n" + file);
+
+                } catch (Exception ex) {
+                    System.out.println("Error al crear pdf: " + Arrays.toString(ex.getStackTrace()));
+                    dialog.close();
+                    alertWindow.generateError("Error", "Ocurrió un error generar el reporte de clientes activos.", null);
+                }
+            });
+
+            taskReport.setOnFailed(e -> {
+                dialog.close();
+                alertWindow.generateError("Error", "Ocurrió un error generar el reporte de clientes activos.", null);
+            });
+
+            Thread thread = new Thread(taskReport);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    @FXML
+    public void reportSanciones() {
+        File file = new FileGenerator().createFile("reporte_sanciones_activas", root);
+
+        if (file != null) {
+            AlertWindow alertWindow = new AlertWindow();
+            LoadingDialog dialog = new LoadingDialog("Generando reporte.");
+            dialog.show();
+
+            Task<List<SancionesListDTO>> taskReport = new Task<>() {
+                @Override
+                protected List<SancionesListDTO> call() {
+                    return new SancionService().getAllList(
+                            "Todos",
+                            "",
+                            SancionesViewTitlesMenuBtn.FECHA,
+                            false);
+                }
+            };
+
+            taskReport.setOnSucceeded(e -> {
+                try {
+                    // generar reporte
+                    List<SancionesListDTO> list = taskReport.getValue();
+                    String[] headers = {
+                            SancionesViewTitlesMenuBtn.ID,
+                            SancionesViewTitlesMenuBtn.SANCION,
+                            SancionesViewTitlesMenuBtn.DESCRIPCION,
+                            SancionesViewTitlesMenuBtn.CLIENTE,
+                            SancionesViewTitlesMenuBtn.ID_PRESTAMO,
+                            SancionesViewTitlesMenuBtn.LIBRO,
+                            SancionesViewTitlesMenuBtn.ID_EJEMPLAR,
+                            SancionesViewTitlesMenuBtn.FECHA
+                    };
+                    float[] colWidths = {40, 60, 120, 200, 70, 150, 70, 60};
+                    new PdfService().generateSanciones(list, headers, colWidths, userLogged, file);
+                    dialog.close();
+                    alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n"+file);
+
+                } catch (Exception ex) {
+                    System.out.println("Error al crear pdf: " + Arrays.toString(ex.getStackTrace()));
+                    dialog.close();
+                    alertWindow.generateError("Error", "Ocurrió un error generar el reporte de sanciones.", null);
+                }
+            });
+
+            taskReport.setOnFailed(e -> {
+                dialog.close();
+                alertWindow.generateError("Error", "Ocurrió un error generar el reporte de sanciones.", null);
             });
 
             Thread thread = new Thread(taskReport);
