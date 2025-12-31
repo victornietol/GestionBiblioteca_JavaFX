@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="rootPrestamos" minHeight="0.0" minWidth="0.0" prefHeight="666.0" prefWidth="979.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.tabs.PrestamosController">
+<AnchorPane fx:id="rootPrestamos" minHeight="0.0" minWidth="0.0" prefHeight="666.0" prefWidth="979.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.victornieto.gestionbiblioteca.controller.tabs.PrestamosController">
     <children>
         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
