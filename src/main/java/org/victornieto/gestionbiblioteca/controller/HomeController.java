@@ -14,10 +14,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.victornieto.gestionbiblioteca.Main;
 import org.victornieto.gestionbiblioteca.controller.tabs.*;
-import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
-import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
-import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
+import org.victornieto.gestionbiblioteca.dto.*;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 import org.victornieto.gestionbiblioteca.service.*;
 import org.victornieto.gestionbiblioteca.utility.*;
@@ -345,6 +342,94 @@ public class HomeController {
             taskReport.setOnFailed(e -> {
                 dialog.close();
                 alertWindow.generateError("Error", "Ocurrió un error generar el reporte de sanciones.", null);
+            });
+
+            Thread thread = new Thread(taskReport);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    @FXML
+    public void reportCategorias() {
+        File file = new FileGenerator().createFile("reporte_categorias_disponibles", root);
+
+        if (file != null) {
+            AlertWindow alertWindow = new AlertWindow();
+            LoadingDialog dialog = new LoadingDialog("Generando reporte.");
+            dialog.show();
+
+            Task<List<CategoriaFormDTO>> taskReport = new Task<>() {
+                @Override
+                protected List<CategoriaFormDTO> call() {
+                    return new CategoriaService().getAllNombres();
+                }
+            };
+
+            taskReport.setOnSucceeded(e -> {
+                try {
+                    // generar reporte
+                    List<CategoriaFormDTO> list = taskReport.getValue();
+                    String[] headers = {"Conteo", "Categoría"};
+                    float[] colWidths = {40, 150};
+                    new PdfService().generateCategorias(list, headers, colWidths, userLogged, file);
+                    dialog.close();
+                    alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n"+file);
+
+                } catch (Exception ex) {
+                    System.out.println("Error al crear pdf: " + Arrays.toString(ex.getStackTrace()));
+                    dialog.close();
+                    alertWindow.generateError("Error", "Ocurrió un error generar el reporte de categorías.", null);
+                }
+            });
+
+            taskReport.setOnFailed(e -> {
+                dialog.close();
+                alertWindow.generateError("Error", "Ocurrió un error generar el reporte de categorías.", null);
+            });
+
+            Thread thread = new Thread(taskReport);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    @FXML
+    public void reportEditoriales() {
+        File file = new FileGenerator().createFile("reporte_editoriales_disponibles", root);
+
+        if (file != null) {
+            AlertWindow alertWindow = new AlertWindow();
+            LoadingDialog dialog = new LoadingDialog("Generando reporte.");
+            dialog.show();
+
+            Task<List<EditorialFormDTO>> taskReport = new Task<>() {
+                @Override
+                protected List<EditorialFormDTO> call() {
+                    return new EditorialService().getAllNombres();
+                }
+            };
+
+            taskReport.setOnSucceeded(e -> {
+                try {
+                    // generar reporte
+                    List<EditorialFormDTO> list = taskReport.getValue();
+                    String[] headers = {"Conteo", "Editorial"};
+                    float[] colWidths = {40, 150};
+                    new PdfService().generateEditoriales(list, headers, colWidths, userLogged, file);
+                    dialog.close();
+                    alertWindow.generateInformation("Información", "Operación exitosa.", "Reporte generado correctamente en: \n"+file);
+
+                } catch (Exception ex) {
+                    System.out.println("Error al crear pdf: " + Arrays.toString(ex.getStackTrace()));
+                    dialog.close();
+                    alertWindow.generateError("Error", "Ocurrió un error generar el reporte de editoriales.", null);
+                }
+            });
+
+            taskReport.setOnFailed(e -> {
+                dialog.close();
+                alertWindow.generateError("Error", "Ocurrió un error generar el reporte de editoriales.", null);
             });
 
             Thread thread = new Thread(taskReport);

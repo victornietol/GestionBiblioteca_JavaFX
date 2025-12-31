@@ -33,6 +33,26 @@ public class CategoriaRepositoryImpl implements CategoriaRepository{
     }
 
     @Override
+    public List<CategoriaFormDTO> getNombres() throws SQLException {
+        List<CategoriaFormDTO> list;
+
+        String query = "SELECT nombre FROM categoria WHERE activo = 1";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet resultSet = stmt.executeQuery()) {
+
+            list = transformToDTO(resultSet);
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta en getNombres() en CategoriaRepositoryImpl");
+            throw new SQLException("Error al obtener nombres de categorías.");
+        }
+
+        return list;
+    }
+
+    @Override
     public Optional<CategoriaModel> getById(Integer id) throws SQLException {
         /**
          * Obtener una categoria, en caso de no encontrarlo se devuelve empty
@@ -166,5 +186,17 @@ public class CategoriaRepositoryImpl implements CategoriaRepository{
         }
 
         return null;
+    }
+
+    private List<CategoriaFormDTO> transformToDTO(ResultSet resultSet) throws SQLException {
+        List<CategoriaFormDTO> list = new ArrayList<>();
+
+        while(resultSet.next()) {
+            list.add(
+                    new CategoriaFormDTO(resultSet.getString("nombre"))
+            );
+        }
+
+        return list;
     }
 }

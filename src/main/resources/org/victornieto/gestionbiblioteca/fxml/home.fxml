@@ -22,6 +22,8 @@
                 <MenuItem mnemonicParsing="false" text="Préstamos activos" onAction="#reportPrestamos"/>
                 <MenuItem mnemonicParsing="false" text="Clientes" onAction="#reportClientes"/>
                 <MenuItem mnemonicParsing="false" text="Sanciones activas" onAction="#reportSanciones"/>
+                <MenuItem mnemonicParsing="false" text="Categorías existentes" onAction="#reportCategorias"/>
+                <MenuItem mnemonicParsing="false" text="Editoriales disponibles" onAction="#reportEditoriales"/>
               </items>
             </Menu>
 

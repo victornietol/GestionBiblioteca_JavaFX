@@ -1,6 +1,7 @@
 package org.victornieto.gestionbiblioteca.repository;
 
 import org.victornieto.gestionbiblioteca.database.ConnectionDBImpl_MySQL;
+import org.victornieto.gestionbiblioteca.dto.CategoriaFormDTO;
 import org.victornieto.gestionbiblioteca.dto.EditorialFormDTO;
 import org.victornieto.gestionbiblioteca.model.CategoriaModel;
 import org.victornieto.gestionbiblioteca.model.EditorialModel;
@@ -27,6 +28,26 @@ public class EditorialRepositoryImpl implements EditorialRepository{
         } catch (SQLException e) {
             System.out.println("Error al ejecutar la consulta en EditorialRepositoryImpl");
             throw e;
+        }
+
+        return list;
+    }
+
+    @Override
+    public List<EditorialFormDTO> getNombres() throws SQLException {
+        List<EditorialFormDTO> list;
+
+        String query = "SELECT nombre FROM editorial WHERE activo = 1";
+
+        try(Connection conn = ConnectionDBImpl_MySQL.getInstance().getConection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet resultSet = stmt.executeQuery()) {
+
+            list = transformToDTO(resultSet);
+
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta en getNombres() en EditorialRepositoryImpl");
+            throw new SQLException("Error al obtener nombres de editoriales.");
         }
 
         return list;
@@ -166,5 +187,17 @@ public class EditorialRepositoryImpl implements EditorialRepository{
         }
 
         return null;
+    }
+
+    private List<EditorialFormDTO> transformToDTO(ResultSet resultSet) throws SQLException {
+        List<EditorialFormDTO> list = new ArrayList<>();
+
+        while(resultSet.next()) {
+            list.add(
+                    new EditorialFormDTO(resultSet.getString("nombre"))
+            );
+        }
+
+        return list;
     }
 }

@@ -1,5 +1,6 @@
 package org.victornieto.gestionbiblioteca.service;
 
+import org.victornieto.gestionbiblioteca.dto.CategoriaFormDTO;
 import org.victornieto.gestionbiblioteca.dto.EditorialFormDTO;
 import org.victornieto.gestionbiblioteca.model.EditorialModel;
 import org.victornieto.gestionbiblioteca.repository.EditorialRepositoryImpl;
@@ -29,6 +30,14 @@ public class EditorialService {
         }
 
         return list;
+    }
+
+    public List<EditorialFormDTO> getAllNombres() {
+        try {
+            return editorialRepository.getNombres();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public Optional<EditorialModel> getById(Integer id) {

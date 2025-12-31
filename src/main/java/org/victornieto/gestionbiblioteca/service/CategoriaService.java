@@ -32,6 +32,14 @@ public class CategoriaService {
         return list;
     }
 
+    public List<CategoriaFormDTO> getAllNombres() {
+        try {
+            return categoriaRepository.getNombres();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public Optional<CategoriaModel> getById(Integer id) {
         try {
             return categoriaRepository.getById(id);

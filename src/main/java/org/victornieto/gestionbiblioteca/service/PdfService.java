@@ -5,10 +5,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.victornieto.gestionbiblioteca.dto.ClienteListDTO;
-import org.victornieto.gestionbiblioteca.dto.LibroInventarioDTO;
-import org.victornieto.gestionbiblioteca.dto.PrestamoListDTO;
-import org.victornieto.gestionbiblioteca.dto.SancionesListDTO;
+import org.victornieto.gestionbiblioteca.dto.*;
 import org.victornieto.gestionbiblioteca.model.UsuarioModel;
 
 import java.io.File;
@@ -244,6 +241,114 @@ public class PdfService {
                     sancion.getLibro(),
                     sancion.getIdEjemplar().toString(),
                     sancion.getFecha().toString()
+            };
+
+            drawRow(content, yStart, colWidths, row, false);
+            yStart -= ROW_HEIGHT;
+        }
+
+        content.close();
+        document.save(file);
+        document.close();
+    }
+
+    public void generateCategorias(List<CategoriaFormDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
+        PDDocument document = new PDDocument();
+        PDPage page = createPage(false);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+
+        float yStart = page.getMediaBox().getHeight() - MARGIN;
+
+        createHeader(
+                content,
+                "Reporte de categorías disponibles",
+                String.valueOf(LocalDate.now()),
+                String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
+                user,
+                String.valueOf(list.size()),
+                yStart
+        );
+
+        yStart -= 50;
+
+        drawRow(content, yStart, colWidths, headers, true);
+
+        yStart -= ROW_HEIGHT;
+
+        int conteo = 0;
+
+        for(CategoriaFormDTO cat: list) {
+            //salto de pagina
+            if (yStart<MARGIN) {
+                content.close();
+                page = createPage(true);
+                document.addPage(page);
+                content = new PDPageContentStream(document, page);
+                yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                yStart -= ROW_HEIGHT;
+            }
+
+            String[] row = {
+                    String.valueOf(++conteo),
+                    cat.nombre()
+            };
+
+            drawRow(content, yStart, colWidths, row, false);
+            yStart -= ROW_HEIGHT;
+        }
+
+        content.close();
+        document.save(file);
+        document.close();
+    }
+
+    public void generateEditoriales(List<EditorialFormDTO> list, String[] headers, float[] colWidths, UsuarioModel user, File file) throws IOException {
+        PDDocument document = new PDDocument();
+        PDPage page = createPage(false);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+
+        float yStart = page.getMediaBox().getHeight() - MARGIN;
+
+        createHeader(
+                content,
+                "Reporte de editoriales disponibles",
+                String.valueOf(LocalDate.now()),
+                String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
+                user,
+                String.valueOf(list.size()),
+                yStart
+        );
+
+        yStart -= 50;
+
+        drawRow(content, yStart, colWidths, headers, true);
+
+        yStart -= ROW_HEIGHT;
+
+        int conteo = 0;
+
+        for(EditorialFormDTO edit: list) {
+            //salto de pagina
+            if (yStart<MARGIN) {
+                content.close();
+                page = createPage(true);
+                document.addPage(page);
+                content = new PDPageContentStream(document, page);
+                yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                yStart -= ROW_HEIGHT;
+            }
+
+            String[] row = {
+                    String.valueOf(++conteo),
+                    edit.nombre()
             };
 
             drawRow(content, yStart, colWidths, row, false);
