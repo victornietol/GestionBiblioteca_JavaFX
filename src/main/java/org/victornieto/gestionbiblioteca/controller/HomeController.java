@@ -477,5 +477,9 @@ public class HomeController {
         if (tabPrestamosController != null) {
             tabPrestamosController.setUserLogged(userLogged);
         }
+
+        if (tabReportesController != null) {
+            tabReportesController.setUserLogged(userLogged);
+        }
     }
 }

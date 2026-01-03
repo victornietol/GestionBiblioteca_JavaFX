@@ -360,6 +360,209 @@ public class PdfService {
         document.close();
     }
 
+    public void generateResumeToday(
+            File file,
+            List<PrestamoListDTO> prestamos,
+            List<PrestamoListDTO> prestamosReturned,
+            Integer activePrestamos,
+            Integer newClientesToday,
+            Integer activeClientes,
+            Integer activeSanciones,
+            String[] headers,
+            float[] colWidths,
+            UsuarioModel user) throws IOException {
+
+        PDDocument document = new PDDocument();
+        PDPage page = createPage(true);
+        document.addPage(page);
+
+        PDPageContentStream content = new PDPageContentStream(document, page);
+
+        float yStart = page.getMediaBox().getHeight() - MARGIN;
+
+        createHeaderResume(
+                content,
+                "Reporte del resumen del día",
+                String.valueOf(LocalDate.now()),
+                String.valueOf(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)),
+                user,
+                yStart
+        );
+
+        yStart -= 45;
+
+        // Préstamos del día
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA_BOLD, 9);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Prestamos realizados hoy: " + prestamos.size());
+        content.endText();
+        yStart -= 12;
+        drawRow(content, yStart, colWidths, headers, true);
+        yStart -= ROW_HEIGHT;
+
+        if(prestamos.isEmpty()) {
+            float cont = 0;
+            for (float n: colWidths) {
+                cont += n;
+            }
+            String[] uniqueRow = {"Sin prestamos realizados hoy"};
+            float[] uniqueCol = {cont}; // ancho de la columna
+            drawRow(content, yStart, uniqueCol, uniqueRow, false);
+            yStart -= ROW_HEIGHT;
+        } else {
+            for(PrestamoListDTO p: prestamos) {
+                //salto de pagina
+                if (yStart<MARGIN) {
+                    content.close();
+                    page = createPage(true);
+                    document.addPage(page);
+                    content = new PDPageContentStream(document, page);
+                    yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                    drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                    yStart -= ROW_HEIGHT;
+                }
+
+                String[] row = {
+                        p.getIdPrestamo().toString(),
+                        p.getFechaInicio().toString(),
+                        p.getFechaEntrega().toString(),
+                        p.getIdEjemplar().toString(),
+                        p.getTitulo(),
+                        p.getAutor(),
+                        p.getCliente(),
+                        p.getUsuario()
+                };
+
+                drawRow(content, yStart, colWidths, row, false);
+                yStart -= ROW_HEIGHT;
+            }
+        }
+
+
+        // Prestamos devueltos
+        yStart -= 40;
+        if (yStart<MARGIN) { // salto de página
+            content.close();
+            page = createPage(true);
+            document.addPage(page);
+            content = new PDPageContentStream(document, page);
+            yStart = page.getMediaBox().getHeight() - MARGIN;
+        }
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA_BOLD, 9);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Prestamos devueltos hoy: " + prestamosReturned.size());
+        content.endText();
+        yStart -= 12;
+        drawRow(content, yStart, colWidths, headers, true);
+        yStart -= ROW_HEIGHT;
+
+        if(prestamosReturned.isEmpty()) {
+            float cont = 0;
+            for (float n: colWidths) {
+                cont += n;
+            }
+            String[] uniqueRow = {"Sin prestamos devueltos hoy"};
+            float[] uniqueCol = {cont}; // ancho de la columna
+            drawRow(content, yStart, uniqueCol, uniqueRow, false);
+            yStart -= ROW_HEIGHT;
+        } else {
+            for(PrestamoListDTO p: prestamosReturned) {
+                //salto de pagina
+                if (yStart<MARGIN) {
+                    content.close();
+                    page = createPage(true);
+                    document.addPage(page);
+                    content = new PDPageContentStream(document, page);
+                    yStart = page.getMediaBox().getHeight() - MARGIN;
+
+                    drawRow(content, yStart, colWidths, headers, true); // rehacer encabezado
+                    yStart -= ROW_HEIGHT;
+                }
+
+                String[] row = {
+                        p.getIdPrestamo().toString(),
+                        p.getFechaInicio().toString(),
+                        p.getFechaEntrega().toString(),
+                        p.getIdEjemplar().toString(),
+                        p.getTitulo(),
+                        p.getAutor(),
+                        p.getCliente(),
+                        p.getUsuario()
+                };
+
+                drawRow(content, yStart, colWidths, row, false);
+                yStart -= ROW_HEIGHT;
+            }
+        }
+
+
+        // datos extra
+        yStart -= 40;
+        content.setFont(PDType1Font.HELVETICA, 9);
+
+        if (yStart<MARGIN) { // salto de página
+            content.close();
+            page = createPage(true);
+            document.addPage(page);
+            content = new PDPageContentStream(document, page);
+            yStart = page.getMediaBox().getHeight() - MARGIN;
+        }
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA, 9);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Cantidad de libros en préstamo actualmente: " + activePrestamos);
+        content.endText();
+
+        yStart -= 20;
+        if (yStart<MARGIN) { // salto de página
+            content.close();
+            page = createPage(true);
+            document.addPage(page);
+            content = new PDPageContentStream(document, page);
+            yStart = page.getMediaBox().getHeight() - MARGIN;
+        }
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA, 9);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Cantidad de nuevos clientes generados: " + newClientesToday);
+        content.endText();
+
+        yStart -= 20;
+        if (yStart<MARGIN) { // salto de página
+            content.close();
+            page = createPage(true);
+            document.addPage(page);
+            content = new PDPageContentStream(document, page);
+            yStart = page.getMediaBox().getHeight() - MARGIN;
+        }
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA, 9);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Cantidad de clientes actuales: " + activeClientes);
+        content.endText();
+
+        yStart -= 20;
+        if (yStart<MARGIN) { // salto de página
+            content.close();
+            page = createPage(true);
+            document.addPage(page);
+            content = new PDPageContentStream(document, page);
+            yStart = page.getMediaBox().getHeight() - MARGIN;
+        }
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA, 9);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Cantidad de sanciones activas: " + activeSanciones);
+        content.endText();
+
+        content.close();
+        document.save(file);
+        document.close();
+    }
+
     private void drawRow(PDPageContentStream content, float y, float[] colWidths, String[] texts, boolean header) throws IOException {
         float x = MARGIN;
         content.setFont(header ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, 9);
@@ -421,6 +624,35 @@ public class PdfService {
         content.newLineAtOffset(MARGIN, yStart);
         content.showText("Registros encontrados: " + amounRecords);
         content.endText();
+    }
+
+    private void createHeaderResume(PDPageContentStream content, String title, String date, String time, UsuarioModel user, float yStart) throws IOException {
+        // titulo
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText(title);
+        content.endText();
+
+        yStart -= 12;
+
+        // fecha y hora
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA, 10);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Fecha y hora del reporte: " + date + ", " + time);
+        content.endText();
+
+        yStart -= 12;
+
+        // usuario que generó el reporte
+        content.beginText();
+        content.setFont(PDType1Font.HELVETICA, 10);
+        content.newLineAtOffset(MARGIN, yStart);
+        content.showText("Reporte generado por: " + user.getNombre() + " " + user.getApellido_p() + (user.getApellido_m()!=null ? (" " + user.getApellido_m()) : "") + ", username: " + user.getUsername());
+        content.endText();
+
+        yStart -= 12;
     }
 
     private PDPage createPage(Boolean horizontal) {
